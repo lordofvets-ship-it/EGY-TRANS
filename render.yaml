@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: egyptian-call-transcriber
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QWEN_CLEO_API_URL
+        sync: false
+      - key: QWEN_CLEO_API_KEY
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: MAX_AUDIO_MB
+        value: "25"
+      - key: STT_ENGINE
+        value: auto
