@@ -1,0 +1,6 @@
+{
+  "name": "Egyptian Arabic Call Transcriber",
+  "description": "برنامج لتفريغ مكالمات الكول سنتر بالعامية المصرية بدقة تامة بنظام QwenCleo-ASR و Whisper واستخراج الصمت والهولد، مع نظام تدقيق ومطابقة ريسيت الفاتورة عبر محرك Tesseract OCR وتصدير تقارير التقييم الشاملة بصيغة إكسيل (Excel .xlsx).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

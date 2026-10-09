@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/qa-logo.png" />
+    <title>Egyptian Arabic Call Transcriber</title>
+    <meta name="description" content="برنامج لتفريغ مكالمات الكول سنتر بالعامية المصرية بدقة تامة بنظام QwenCleo-ASR و Whisper واستخراج الصمت والهولد، مع نظام تدقيق ومطابقة ريسيت الفاتورة عبر محرك Tesseract OCR وتصدير تقارير التقييم الشاملة بصيغة إكسيل (Excel .xlsx)." />
+    <meta property="og:title" content="Egyptian Arabic Call Transcriber" />
+    <meta property="og:description" content="برنامج لتفريغ مكالمات الكول سنتر بالعامية المصرية بدقة تامة بنظام QwenCleo-ASR و Whisper واستخراج الصمت والهولد، مع نظام تدقيق ومطابقة ريسيت الفاتورة عبر محرك Tesseract OCR وتصدير تقارير التقييم الشاملة بصيغة إكسيل (Excel .xlsx)." />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('app_theme');
+          if (saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+
