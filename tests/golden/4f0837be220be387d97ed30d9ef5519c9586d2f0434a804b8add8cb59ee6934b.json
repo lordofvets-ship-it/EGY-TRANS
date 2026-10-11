@@ -1,0 +1,2332 @@
+{
+  "callSummary": "مكالمة واردة من العميلة (منى) إلى كول سنتر صيدليات عبداللطيف الطرشوبي استقبلتها الزميلة (آية)، تم خلالها التحقق من رقم الهاتف والعنوان والاسم المسجل، وبحث توفير الأصناف الدوائية المطلوبة وعرض المثائل المتاحة وتوضيح الأسعار والاستخدامات.",
+  "agentName": "د. آية",
+  "customerName": "منة",
+  "sentiment": "positive",
+  "confidenceScore": 90,
+  "transcript": [
+    {
+      "timeStart": "00:00",
+      "timeEnd": "00:04",
+      "speaker": "موظف خدمة العملاء",
+      "text": "مساء الخير، ألو عبد اللطيف الطرشوبي معاك آية، أتشرف بالاسم يا فندم؟",
+      "duration": 4
+    },
+    {
+      "timeStart": "00:05",
+      "timeEnd": "00:05",
+      "speaker": "العميل",
+      "text": "منة.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:06",
+      "timeEnd": "00:06",
+      "speaker": "موظف خدمة العملاء",
+      "text": "ألو.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:07",
+      "timeEnd": "00:07",
+      "speaker": "العميل",
+      "text": "معاكي منة.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:08",
+      "timeEnd": "00:13",
+      "speaker": "موظف خدمة العملاء",
+      "text": "أهلاً معاكي أستاذة منة، رقم حضرتك زي المسجل يا فندم؟ أستأذنك الاسم ثلاثي والعنوان لتسجيل البيانات.",
+      "duration": 5
+    },
+    {
+      "timeStart": "00:13",
+      "timeEnd": "00:14",
+      "speaker": "العميل",
+      "text": "لا هو رقم المسجل عادي.",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:15",
+      "timeEnd": "00:15",
+      "speaker": "موظف خدمة العملاء",
+      "text": "اتفضلي.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:16",
+      "timeEnd": "00:16",
+      "speaker": "العميل",
+      "text": "011.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:17",
+      "timeEnd": "00:17",
+      "speaker": "موظف خدمة العملاء",
+      "text": "011.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:19",
+      "timeEnd": "00:19",
+      "speaker": "العميل",
+      "text": "108.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:20",
+      "timeEnd": "00:21",
+      "speaker": "موظف خدمة العملاء",
+      "text": "011 108.",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:22",
+      "timeEnd": "00:22",
+      "speaker": "العميل",
+      "text": "180.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:23",
+      "timeEnd": "00:23",
+      "speaker": "موظف خدمة العملاء",
+      "text": "180.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:26",
+      "timeEnd": "00:26",
+      "speaker": "العميل",
+      "text": "74.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:27",
+      "timeEnd": "00:27",
+      "speaker": "موظف خدمة العملاء",
+      "text": "74.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:28",
+      "timeEnd": "00:29",
+      "speaker": "العميل",
+      "text": "285.",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:29",
+      "timeEnd": "00:30",
+      "speaker": "موظف خدمة العملاء",
+      "text": "285.",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:31",
+      "timeEnd": "00:37",
+      "speaker": "موظف خدمة العملاء",
+      "text": "فترة صمت الموظف",
+      "duration": 6
+    },
+    {
+      "timeStart": "00:37",
+      "timeEnd": "00:40",
+      "speaker": "موظف خدمة العملاء",
+      "text": "ممكن توضحيلي مسجل باسم مين والعنوان يا أستاذة منة؟",
+      "duration": 3
+    },
+    {
+      "timeStart": "00:41",
+      "timeEnd": "00:41",
+      "speaker": "العميل",
+      "text": "منة البات.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:42",
+      "timeEnd": "00:43",
+      "speaker": "موظف خدمة العملاء",
+      "text": "والعنوان؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:44",
+      "timeEnd": "00:47",
+      "speaker": "العميل",
+      "text": "العنوان مدينة نصر القديمة طريق السبت بعد [غير مؤكد] واحد.",
+      "duration": 3
+    },
+    {
+      "timeStart": "00:48",
+      "timeEnd": "00:48",
+      "speaker": "موظف خدمة العملاء",
+      "text": "عذراً؟",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:50",
+      "timeEnd": "00:51",
+      "speaker": "العميل",
+      "text": "تمام طريق السبت.",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:51",
+      "timeEnd": "00:53",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام أضيف الرقم ده على البيانات يا أستاذة منة؟",
+      "duration": 2
+    },
+    {
+      "timeStart": "00:54",
+      "timeEnd": "00:54",
+      "speaker": "العميل",
+      "text": "مفيش مشكلة.",
+      "duration": 0
+    },
+    {
+      "timeStart": "00:55",
+      "timeEnd": "00:56",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام اتفضلي أهلاً بحضرتك.",
+      "duration": 1
+    },
+    {
+      "timeStart": "00:57",
+      "timeEnd": "01:00",
+      "speaker": "موظف خدمة العملاء",
+      "text": "فترة صمت الموظف",
+      "duration": 3
+    },
+    {
+      "timeStart": "01:00",
+      "timeEnd": "01:01",
+      "speaker": "موظف خدمة العملاء",
+      "text": "اتفضلي أهلاً بحضرتك.",
+      "duration": 1
+    },
+    {
+      "timeStart": "01:01",
+      "timeEnd": "01:03",
+      "speaker": "العميل",
+      "text": "أنا معايا طفل أربع سنين.",
+      "duration": 2
+    },
+    {
+      "timeStart": "01:04",
+      "timeEnd": "01:04",
+      "speaker": "موظف خدمة العملاء",
+      "text": "طفل أربع سنين.",
+      "duration": 0
+    },
+    {
+      "timeStart": "01:05",
+      "timeEnd": "01:06",
+      "speaker": "العميل",
+      "text": "كان سخن بقاله كام يوم.",
+      "duration": 1
+    },
+    {
+      "timeStart": "01:07",
+      "timeEnd": "01:08",
+      "speaker": "موظف خدمة العملاء",
+      "text": "عذراً بس الصوت مش واضح يا فندم.",
+      "duration": 1
+    },
+    {
+      "timeStart": "01:09",
+      "timeEnd": "01:10",
+      "speaker": "موظف خدمة العملاء",
+      "text": "طفل أربع سنوات مظبوط؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "01:11",
+      "timeEnd": "01:11",
+      "speaker": "العميل",
+      "text": "آه.",
+      "duration": 0
+    },
+    {
+      "timeStart": "01:12",
+      "timeEnd": "01:12",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام.",
+      "duration": 0
+    },
+    {
+      "timeStart": "01:13",
+      "timeEnd": "01:15",
+      "speaker": "العميل",
+      "text": "كان سخن فرحنا للدكتور بعد كده سخونة بس.",
+      "duration": 2
+    },
+    {
+      "timeStart": "01:16",
+      "timeEnd": "01:16",
+      "speaker": "موظف خدمة العملاء",
+      "text": "سخن وإيه؟",
+      "duration": 0
+    },
+    {
+      "timeStart": "01:17",
+      "timeEnd": "01:19",
+      "speaker": "العميل",
+      "text": "هو سخن كان هو وقتها سخونة بس.",
+      "duration": 2
+    },
+    {
+      "timeStart": "01:21",
+      "timeEnd": "01:26",
+      "speaker": "العميل",
+      "text": "فالدكتور قال هو سخونية مفيش حاجة في الزور الحمد لله، فهياخد دواء سخونية بس.",
+      "duration": 5
+    },
+    {
+      "timeStart": "01:26",
+      "timeEnd": "01:34",
+      "speaker": "العميل",
+      "text": "وبعد ما روحنا من عند الدكتور على بالليل كده بدأ يكح كحة، اللي هي بتخليه يرجع يعني، وبتزيد عليه طول ما هو نايم، يعني طول ما هو نايم بيكح.",
+      "duration": 8
+    },
+    {
+      "timeStart": "01:35",
+      "timeEnd": "01:38",
+      "speaker": "العميل",
+      "text": "يبقى مش قادر وعايز يرجع وبيرجع يعني.",
+      "duration": 3
+    },
+    {
+      "timeStart": "01:39",
+      "timeEnd": "01:42",
+      "speaker": "العميل",
+      "text": "ومعرفش هل ده بلغم وبيحس إن هو زوره بيعوط وكده.",
+      "duration": 3
+    },
+    {
+      "timeStart": "01:43",
+      "timeEnd": "01:46",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام يعني حضرتك بتسمعي زي صوت خرفشة في الصدر أو إن هو حاسس إن في بلغم؟",
+      "duration": 3
+    },
+    {
+      "timeStart": "01:47",
+      "timeEnd": "01:55",
+      "speaker": "العميل",
+      "text": "حاسس إن في كحة، حاسس إن وهي بتطلع معاه وهو بيكح وهو مش قادر إن هو يطلعها يرجعها تاني.",
+      "duration": 8
+    },
+    {
+      "timeStart": "01:56",
+      "timeEnd": "02:00",
+      "speaker": "العميل",
+      "text": "معرفش هل ده ترجيع بس ولا ده في صوت [غير مؤكد].",
+      "duration": 4
+    },
+    {
+      "timeStart": "02:00",
+      "timeEnd": "02:04",
+      "speaker": "موظف خدمة العملاء",
+      "text": "يعني هو في إحساس إن عنده بلغم بس مش قادر يخرجه؟",
+      "duration": 4
+    },
+    {
+      "timeStart": "02:05",
+      "timeEnd": "02:05",
+      "speaker": "العميل",
+      "text": "آه.",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:07",
+      "timeEnd": "02:09",
+      "speaker": "العميل",
+      "text": "وفي نفس الوقت بقى من إمبارح.",
+      "duration": 2
+    },
+    {
+      "timeStart": "02:10",
+      "timeEnd": "02:10",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام.",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:11",
+      "timeEnd": "02:12",
+      "speaker": "موظف خدمة العملاء",
+      "text": "في أي أعراض تانية غير الكحة حالياً؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "02:13",
+      "timeEnd": "02:21",
+      "speaker": "العميل",
+      "text": "هو هو تقريباً هو في برضه كحة ناشفة يعني إن هي بتجرح في صوته كده مش عارفة بتجرح بقى من من شدتها ولا هي كحة ناشفة.",
+      "duration": 8
+    },
+    {
+      "timeStart": "02:22",
+      "timeEnd": "02:22",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام.",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:23",
+      "timeEnd": "02:24",
+      "speaker": "موظف خدمة العملاء",
+      "text": "في أي أعراض تانية غير الكحة حالياً؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "02:25",
+      "timeEnd": "02:29",
+      "speaker": "العميل",
+      "text": "بقى في بقى بقى اسمها إيه دي؟",
+      "duration": 4
+    },
+    {
+      "timeStart": "02:31",
+      "timeEnd": "02:31",
+      "speaker": "موظف خدمة العملاء",
+      "text": "من غير أكل؟",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:32",
+      "timeEnd": "02:33",
+      "speaker": "العميل",
+      "text": "لا استنى [غير مؤكد].",
+      "duration": 1
+    },
+    {
+      "timeStart": "02:36",
+      "timeEnd": "02:37",
+      "speaker": "العميل",
+      "text": "بقى بيرشح.",
+      "duration": 1
+    },
+    {
+      "timeStart": "02:38",
+      "timeEnd": "02:38",
+      "speaker": "موظف خدمة العملاء",
+      "text": "عنده رشح؟",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:39",
+      "timeEnd": "02:39",
+      "speaker": "العميل",
+      "text": "آه.",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:40",
+      "timeEnd": "02:43",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام يعني حالياً طب الحرارة قلت يا فندم ولا لسه مرتفعة برضه؟",
+      "duration": 3
+    },
+    {
+      "timeStart": "02:44",
+      "timeEnd": "02:48",
+      "speaker": "العميل",
+      "text": "آه يعني السخونية بتروح وتيجي كده بتقل مع الدواء يعني.",
+      "duration": 4
+    },
+    {
+      "timeStart": "02:49",
+      "timeEnd": "02:49",
+      "speaker": "موظف خدمة العملاء",
+      "text": "طيب استخدم أي أدوية؟",
+      "duration": 0
+    },
+    {
+      "timeStart": "02:51",
+      "timeEnd": "02:57",
+      "speaker": "العميل",
+      "text": "لا هو كنت بديله ماكسيلايز (Maxilase)، فلما أول ما حسيت إن هو تعب وسخونية اديته ماكسيلايز بتاع سخونية على طول.",
+      "duration": 6
+    },
+    {
+      "timeStart": "02:58",
+      "timeEnd": "03:02",
+      "speaker": "العميل",
+      "text": "فلما رحت للدكتور وقال إن هو الحمد لله مفيش حاجة غير السخونية وقفته.",
+      "duration": 4
+    },
+    {
+      "timeStart": "03:03",
+      "timeEnd": "03:10",
+      "speaker": "العميل",
+      "text": "فإمبارح لما لقيت في دواء كحة كان عندي دواء حساسية اديتله اديتله مرة بالليل قبل ما ينام يعني.",
+      "duration": 7
+    },
+    {
+      "timeStart": "03:11",
+      "timeEnd": "03:13",
+      "speaker": "موظف خدمة العملاء",
+      "text": "طيب اسم دواء الحساسية مع حضرتك تبلغيني بيه؟",
+      "duration": 2
+    },
+    {
+      "timeStart": "03:14",
+      "timeEnd": "03:14",
+      "speaker": "العميل",
+      "text": "أوكيه.",
+      "duration": 0
+    },
+    {
+      "timeStart": "03:15",
+      "timeEnd": "03:20",
+      "speaker": "موظف خدمة العملاء",
+      "text": "فترة صمت الموظف",
+      "duration": 5
+    },
+    {
+      "timeStart": "03:20",
+      "timeEnd": "03:21",
+      "speaker": "موظف خدمة العملاء",
+      "text": "عذراً اسم الدواء مع حضرتك؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "03:22",
+      "timeEnd": "03:22",
+      "speaker": "العميل",
+      "text": "مدي بالعلبة.",
+      "duration": 0
+    },
+    {
+      "timeStart": "03:23",
+      "timeEnd": "03:23",
+      "speaker": "موظف خدمة العملاء",
+      "text": "اتفضلي.",
+      "duration": 0
+    },
+    {
+      "timeStart": "03:24",
+      "timeEnd": "03:27",
+      "speaker": "موظف خدمة العملاء",
+      "text": "فترة صمت الموظف",
+      "duration": 3
+    },
+    {
+      "timeStart": "03:28",
+      "timeEnd": "03:30",
+      "speaker": "العميل",
+      "text": "اسمه إبريزير إبريزين (Iverzine).",
+      "duration": 2
+    },
+    {
+      "timeStart": "03:31",
+      "timeEnd": "03:31",
+      "speaker": "موظف خدمة العملاء",
+      "text": "اسمه عذراً؟",
+      "duration": 0
+    },
+    {
+      "timeStart": "03:33",
+      "timeEnd": "03:33",
+      "speaker": "العميل",
+      "text": "إبريزين.",
+      "duration": 0
+    },
+    {
+      "timeStart": "03:36",
+      "timeEnd": "03:38",
+      "speaker": "موظف خدمة العملاء",
+      "text": "إبريزين ده لعلاج القمل يا فندم مش بيتشرب.",
+      "duration": 2
+    },
+    {
+      "timeStart": "03:39",
+      "timeEnd": "03:44",
+      "speaker": "العميل",
+      "text": "هو هو الدكتور كان كاتبه له أصلاً مضاد للهستامين [غير مؤكد] ممكن.",
+      "duration": 5
+    },
+    {
+      "timeStart": "03:44",
+      "timeEnd": "03:45",
+      "speaker": "موظف خدمة العملاء",
+      "text": "إبروسبان ممكن؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "03:46",
+      "timeEnd": "03:48",
+      "speaker": "العميل",
+      "text": "إبريزين مفيش أمل.",
+      "duration": 2
+    },
+    {
+      "timeStart": "03:48",
+      "timeEnd": "03:49",
+      "speaker": "العميل",
+      "text": "افريزين مفيش امل",
+      "duration": 1
+    },
+    {
+      "timeStart": "03:49",
+      "timeEnd": "03:51",
+      "speaker": "موظف خدمة العملاء",
+      "text": "افريزين يا فندم ده لعلاج القمل مش بيتشرب",
+      "duration": 2
+    },
+    {
+      "timeStart": "03:52",
+      "timeEnd": "03:52",
+      "speaker": "العميل",
+      "text": "هو",
+      "duration": 0
+    },
+    {
+      "timeStart": "03:53",
+      "timeEnd": "03:54",
+      "speaker": "موظف خدمة العملاء",
+      "text": "ما ينفعش يشر",
+      "duration": 1
+    },
+    {
+      "timeStart": "03:54",
+      "timeEnd": "03:59",
+      "speaker": "العميل",
+      "text": "هو لونه ازرق في اخضر كده وكان مكتوب منه 5 سم بيتاخد مره بالليل قبل ما ينام",
+      "duration": 5
+    },
+    {
+      "timeStart": "04:00",
+      "timeEnd": "04:02",
+      "speaker": "موظف خدمة العملاء",
+      "text": "هي العلبه اللي حضرتك بتقولي عليها شراب ازرق",
+      "duration": 2
+    },
+    {
+      "timeStart": "04:03",
+      "timeEnd": "04:08",
+      "speaker": "العميل",
+      "text": "اه مكتوب عليه شراب شراب يحتوي على سيكتوجين",
+      "duration": 5
+    },
+    {
+      "timeStart": "04:08",
+      "timeEnd": "04:09",
+      "speaker": "العميل",
+      "text": "ولبيا",
+      "duration": 1
+    },
+    {
+      "timeStart": "04:09",
+      "timeEnd": "04:10",
+      "speaker": "العميل",
+      "text": "هو شراب",
+      "duration": 1
+    },
+    {
+      "timeStart": "04:11",
+      "timeEnd": "04:12",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام",
+      "duration": 1
+    },
+    {
+      "timeStart": "04:13",
+      "timeEnd": "04:15",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام طيب هو في الوقت الحالي العلاج الكحه",
+      "duration": 2
+    },
+    {
+      "timeStart": "04:16",
+      "timeEnd": "04:20",
+      "speaker": "موظف خدمة العملاء",
+      "text": "هنستخدم الميوكو الشراب هاكد لحضرتك جرعته ممكن توضحي لي بس الطفل وزنه قد ايه؟",
+      "duration": 4
+    },
+    {
+      "timeStart": "04:21",
+      "timeEnd": "04:23",
+      "speaker": "العميل",
+      "text": "17 كيلو",
+      "duration": 2
+    },
+    {
+      "timeStart": "04:24",
+      "timeEnd": "04:25",
+      "speaker": "موظف خدمة العملاء",
+      "text": "17 كيلو تمام لحظه",
+      "duration": 1
+    },
+    {
+      "timeStart": "04:32",
+      "timeEnd": "04:36",
+      "speaker": "موظف خدمة العملاء",
+      "text": "هيستخدم 2.5 سم ثلاث مرات في اليوم ان شاء الله ده بالنسبه للكحه اللي ببلغم",
+      "duration": 4
+    },
+    {
+      "timeStart": "04:37",
+      "timeEnd": "04:38",
+      "speaker": "العميل",
+      "text": "تمام",
+      "duration": 1
+    },
+    {
+      "timeStart": "04:38",
+      "timeEnd": "04:42",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام هي الكحه اللي بالبلغم لما يعني البلغم نفسه يخف",
+      "duration": 4
+    },
+    {
+      "timeStart": "04:43",
+      "timeEnd": "04:44",
+      "speaker": "موظف خدمة العملاء",
+      "text": "عذرا",
+      "duration": 1
+    },
+    {
+      "timeStart": "04:45",
+      "timeEnd": "04:49",
+      "speaker": "موظف خدمة العملاء",
+      "text": "حضرتك هتلاحظي ان يعني الحشرجه اللي معاه او ان صوته اتجرح دي خفت شويه",
+      "duration": 4
+    },
+    {
+      "timeStart": "04:50",
+      "timeEnd": "04:53",
+      "speaker": "موظف خدمة العملاء",
+      "text": "بالنسبه برده لان حضرتك حاسه ان هو عنده رشح وكحه جافه في نفس الوقت",
+      "duration": 3
+    },
+    {
+      "timeStart": "04:54",
+      "timeEnd": "04:58",
+      "speaker": "موظف خدمة العملاء",
+      "text": "هنستخدم برده شراب اسمه زيرتك زيرتك ده هياخده مره واحده بس في اليوم",
+      "duration": 4
+    },
+    {
+      "timeStart": "04:59",
+      "timeEnd": "05:00",
+      "speaker": "موظف خدمة العملاء",
+      "text": "مش هياخده ثلاث مرات زي الميوكو",
+      "duration": 1
+    },
+    {
+      "timeStart": "05:01",
+      "timeEnd": "05:03",
+      "speaker": "العميل",
+      "text": "مره بالليل ولا مره ولا اول ما يصحى",
+      "duration": 2
+    },
+    {
+      "timeStart": "05:03",
+      "timeEnd": "05:06",
+      "speaker": "موظف خدمة العملاء",
+      "text": "لا هياخده بالليل ان شاء الله لان ممكن يسبب نعاس شويه للطفل",
+      "duration": 3
+    },
+    {
+      "timeStart": "05:07",
+      "timeEnd": "05:08",
+      "speaker": "العميل",
+      "text": "تمام",
+      "duration": 1
+    },
+    {
+      "timeStart": "05:08",
+      "timeEnd": "05:10",
+      "speaker": "العميل",
+      "text": "ممكن تبعت لي",
+      "duration": 2
+    },
+    {
+      "timeStart": "05:10",
+      "timeEnd": "05:13",
+      "speaker": "موظف خدمة العملاء",
+      "text": "علبه علبه ان شاء الله اوفر علبه من كل دواء منهم",
+      "duration": 3
+    },
+    {
+      "timeStart": "05:14",
+      "timeEnd": "05:14",
+      "speaker": "العميل",
+      "text": "اه",
+      "duration": 0
+    },
+    {
+      "timeStart": "05:14",
+      "timeEnd": "05:17",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام هاكد لحضرتك دلوقتي الجرعه برده من الزيرتك",
+      "duration": 3
+    },
+    {
+      "timeStart": "05:22",
+      "timeEnd": "05:25",
+      "speaker": "موظف خدمة العملاء",
+      "text": "هيستخدم 5 سم مره واحده في اليوم",
+      "duration": 3
+    },
+    {
+      "timeStart": "05:26",
+      "timeEnd": "05:26",
+      "speaker": "العميل",
+      "text": "تمام",
+      "duration": 0
+    },
+    {
+      "timeStart": "05:27",
+      "timeEnd": "05:31",
+      "speaker": "موظف خدمة العملاء",
+      "text": "فوفقت حضرتك يا استاذه منى علبه من الميوكو شراب وعلبه من الزيرتك الشراب",
+      "duration": 4
+    },
+    {
+      "timeStart": "05:31",
+      "timeEnd": "05:32",
+      "speaker": "موظف خدمة العملاء",
+      "text": "اي اضافات ثانيه؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "05:33",
+      "timeEnd": "05:33",
+      "speaker": "العميل",
+      "text": "لا شكرا",
+      "duration": 0
+    },
+    {
+      "timeStart": "05:33",
+      "timeEnd": "05:36",
+      "speaker": "العميل",
+      "text": "هو انا ممكن اديه له دلوقتي عشان بالليل يكون خف شويه",
+      "duration": 3
+    },
+    {
+      "timeStart": "05:37",
+      "timeEnd": "05:40",
+      "speaker": "موظف خدمة العملاء",
+      "text": "هو الميوكو هياخده دلوقتي ايوه بس الزيرتك يفضل ناخده بالليل",
+      "duration": 3
+    },
+    {
+      "timeStart": "05:41",
+      "timeEnd": "05:42",
+      "speaker": "موظف خدمة العملاء",
+      "text": "لكن الميوكو ناخده من دلوقتي",
+      "duration": 1
+    },
+    {
+      "timeStart": "05:43",
+      "timeEnd": "05:43",
+      "speaker": "العميل",
+      "text": "تمام",
+      "duration": 0
+    },
+    {
+      "timeStart": "05:44",
+      "timeEnd": "05:49",
+      "speaker": "موظف خدمة العملاء",
+      "text": "تمام وفات حضرتك علبه ميوكو وعلبه زيرتك هيكون الاجمالي 91 جنيه شامل لخدمه التوصيل ان شاء الله",
+      "duration": 5
+    },
+    {
+      "timeStart": "05:49",
+      "timeEnd": "05:50",
+      "speaker": "موظف خدمة العملاء",
+      "text": "اي خدمه ثانيه؟",
+      "duration": 1
+    },
+    {
+      "timeStart": "05:50",
+      "timeEnd": "05:51",
+      "speaker": "العميل",
+      "text": "لا شكرا",
+      "duration": 1
+    },
+    {
+      "timeStart": "05:51",
+      "timeEnd": "05:53",
+      "speaker": "موظف خدمة العملاء",
+      "text": "بشكرك ان شاء الله يا استاذه منى السلام عليكم",
+      "duration": 2
+    },
+    {
+      "timeStart": "05:54",
+      "timeEnd": "05:55",
+      "speaker": "موظف خدمة العملاء",
+      "text": "شرفتنا بالصوت",
+      "duration": 1
+    }
+  ],
+  "greetingAnalysis": {
+    "isGreetingUsed": true,
+    "detectedGreetingPhrases": [
+      "أهلاً",
+      "أهلاً بحضرتك"
+    ],
+    "greetingTimestamps": [
+      "00:08",
+      "00:55",
+      "01:00"
+    ],
+    "greetingTextSnippet": "أهلاً معاكي أستاذة منة، رقم حضرتك زي المسجل يا فندم؟ أستأذنك الاسم ثلاثي والعنوان لتسجيل البيانات.",
+    "agentStartSecond": "00:00 (الثانية 0)",
+    "agentStartSecondNumber": 0,
+    "evaluation": "التزم الزميل بالترحيب بالعميل بعد المقدمة بعبارة: \"أهلاً\" بالتوقيت (00:08) بالنص: \"أهلاً معاكي أستاذة منة، رقم حضرتك زي المسجل يا فندم؟ أستأذنك الاسم ثلاثي والعنوان لتسجيل البيانات.\"."
+  },
+  "customerNameAnalysis": {
+    "customerNameDetected": "منة",
+    "isMentionedByAgent": true,
+    "mentionCount": 5,
+    "mentionsTimestamps": [
+      "00:08",
+      "00:37",
+      "00:51",
+      "05:27",
+      "05:51"
+    ],
+    "nameSnippet": "أهلاً معاكي أستاذة منة، رقم حضرتك زي المسجل يا فندم؟ أستأذنك الاسم ثلاثي والعنوان لتسجيل البيانات.",
+    "evaluation": "التزم الزميل بمناداة ومخاطبة العميل باسمه الشخصي (منة) وتكراره باحترافية على مدار المكالمة (5 مرات بالتوقيتات الدقيقة: 00:08, 00:37, 00:51, 05:27, 05:51)."
+  },
+  "customerTitleAnalysis": {
+    "isTitleUsedByAgent": true,
+    "titleDetected": "أستاذة",
+    "titleMentionCount": 5,
+    "titleMentionsTimestamps": [
+      "00:08",
+      "00:37",
+      "00:51",
+      "05:27",
+      "05:51"
+    ],
+    "titleTextSnippet": "أهلاً معاكي أستاذة منة، رقم حضرتك زي المسجل يا فندم؟ أستأذنك الاسم ثلاثي والعنوان لتسجيل البيانات.",
+    "evaluation": "التزم الزميل بمناداة العميل بلقبه المهني/التشريفي المعتمد (أستاذة) باحترافية وتكرار ملائم (5 مرات بالتوقيتات: 00:08، 00:37، 00:51، 05:27، 05:51)."
+  },
+  "agentApologyAnalysis": {
+    "isApologyNeeded": false,
+    "isApologyUsedByAgent": false,
+    "didApologize": false,
+    "apologyMentionCount": 0,
+    "apologyCount": 0,
+    "apologyTimestamps": [],
+    "apologySnippets": [],
+    "apologyTextSnippet": "",
+    "evaluation": "لم تستدعِ المكالمة تقديم اعتذار خاص، وسارت المحادثة بشكل طبيعي."
+  },
+  "empathyAnalysis": {
+    "isEmpathyUsed": false,
+    "detectedEmpathyPhrases": [],
+    "empathyCount": 0,
+    "empathyTimestamps": [],
+    "empathyTextSnippet": "",
+    "evaluation": "لم يتم تقديم التعاطف من قِبل الزميل (معيار التعاطف هو ذكر الزميل حصرياً للكلمات المرسلة المعتمدة فقط أو فيما معناها وليس العميل)."
+  },
+  "furtherAssistanceAnalysis": {
+    "isAssistanceOffered": true,
+    "assistanceCount": 2,
+    "assistanceTextSnippet": "اي خدمه ثانيه؟",
+    "assistanceTimestamps": [
+      "05:31",
+      "05:49"
+    ],
+    "detectedAssistancePhrases": [
+      "اي اضافات ثانيه؟",
+      "اي خدمه ثانيه؟"
+    ],
+    "evaluation": "التزم الزميل بعرض خدمات أخرى ومساعدة إضافية قبل إنهاء المكالمة وبعد مراجعة الطلب بالدقيقة (05:31، 05:49): \"اي خدمه ثانيه؟\"."
+  },
+  "callEndingAnalysis": {
+    "isEndingPhraseUsed": true,
+    "detectedEndingPhrases": [
+      "شرفتنا"
+    ],
+    "endingTimestamps": [
+      "05:54"
+    ],
+    "endingTextSnippet": "شرفتنا بالصوت",
+    "lastSpokenTimestamp": "05:55",
+    "callTotalDuration": "05:59",
+    "remainingTimeSeconds": 4,
+    "remainingTimeBeforeEnd": "4 ثوانٍ (00:04)",
+    "evaluation": "التزم الزميل بختام المكالمة وتوديع العميل بالصيغة المتفق عليها (شرفتنا) بالتوقيت (05:54) بالنص: \"شرفتنا بالصوت\"."
+  },
+  "holdTimeSummary": {
+    "totalHoldSeconds": 0,
+    "holdCount": 0,
+    "overallClassification": "بدون هولد",
+    "validHoldCount": 0,
+    "unjustifiedHoldCount": 0,
+    "isMusicCriterionCompliant": true,
+    "musicComplianceStatus": "",
+    "auditNotes": "المكالمة لا يوجد بها هولد؛ حيث تم التحقق بدقة من عدم ظهور أو بث أي نغمة موسيقى انتظار على خط المكالمة (ظهور نغمة الموسيقى شرط إلزامي ومحوري لاحتساب الهولد). وأي فترات توقف أو سكوت تُحتسب كفترات صمت وسكوت للموظف أثناء فحص النظام.",
+    "holdSegments": [],
+    "hasExceededDurationHold": false
+  },
+  "agentScientificKnowledge": {
+    "hasScientificDiscussion": false,
+    "wasTriggeredByCustomerQuestions": false,
+    "customerQuestionsSnippet": "",
+    "triggerReason": "none",
+    "triggerReasonArabic": "",
+    "medicationsMentioned": [],
+    "overallScientificScore": 0,
+    "medscapeAuditSummary": "",
+    "activeIngredientsAudit": [],
+    "drugInteractionsAudit": [],
+    "alternativesAndEquivalents": [],
+    "scientificComparisons": [],
+    "scientificStrengths": [],
+    "scientificErrorsOrAlerts": [],
+    "evaluation": ""
+  },
+  "unprofessionalWordsAnalysis": {
+    "hasUnprofessionalWords": false,
+    "totalUnprofessionalWordsCount": 0,
+    "unprofessionalWordsCount": 0,
+    "isCleanFromUnprofessionalWords": true,
+    "detectedWords": [],
+    "evaluation": "التزم الزميل بالتحدث بلغة مهنية واحترافية طوال المكالمة دون استخدام أي ألفاظ عامية غير مناسبة.",
+    "alerts": []
+  },
+  "agentToneAnalysis": {
+    "introductionSummary": "افتتحت الزميلة المكالمة بنبرة رسمية محايدة وواضحة، لكنها افتقرت لحضور الابتسامة الصوتية والحماس الترحيبي الكافي.",
+    "callSummary": "سارت نبرة الصوت على مدار المكالمة بطابع رسمي محايد ومتعاون في شرح الأصناف والبدائل، مع غياب البشاشة الصوتية وتكرار فترات التوقف.",
+    "hasSmile": false,
+    "smileEvaluation": "النبرة الصوتية يغلب عليها الطابع الرسمي المحايد (ينقصه الحماس والبشاشة)؛ يُوصى بإظهار الابتسامة الصوتية والحيوية عند الترحيب بالعميل.",
+    "detectedTraits": [
+      "رسمي محايد",
+      "متعاونة في البحث"
+    ],
+    "score": 7,
+    "wav2vec2Emotion": {
+      "modelName": "Acoustic-Emotion-Engine",
+      "isEmbeddedEngine": true,
+      "engineSource": "محرك القياس الصوتي لنبرة ومشاعر الصوت",
+      "dominantEmotion": "neutral",
+      "dominantEmotionArabic": "رسمي محايد (ينقصه الحماس والبشاشة)",
+      "dominantScore": 0.573,
+      "confidencePercentage": 57,
+      "isSmileOrFriendlySupported": false,
+      "allScores": [
+        {
+          "label": "neutral",
+          "labelArabic": "رسمي محايد (ينقصه الحماس والبشاشة)",
+          "score": 0.573,
+          "percentage": 57
+        },
+        {
+          "label": "happy",
+          "labelArabic": "ابتسامة وبشاشة",
+          "score": 0.14,
+          "percentage": 14
+        },
+        {
+          "label": "fearful",
+          "labelArabic": "تردد / عدم يقين",
+          "score": 0.12,
+          "percentage": 12
+        },
+        {
+          "label": "angry",
+          "labelArabic": "انفعال أو حدة",
+          "score": 0.08,
+          "percentage": 8
+        },
+        {
+          "label": "calm",
+          "labelArabic": "حماس وحيوية",
+          "score": 0.068,
+          "percentage": 7
+        },
+        {
+          "label": "sad",
+          "labelArabic": "فتور / انخفاض طاقة",
+          "score": 0.02,
+          "percentage": 2
+        }
+      ],
+      "acousticNotes": "التحليل الصوتي الترددي (كامل المكالمة): النمط السائد هو \"رسمي محايد (ينقصه الحماس والبشاشة)\" بنسبة 57%. خلو ملحوظ من نبرة الابتسامة الصوتية (Happy: 14%) مع طابع رسمي محايد.",
+      "introduction": {
+        "segmentName": "المقدمة والافتتاحية",
+        "dominantEmotion": "neutral",
+        "dominantEmotionArabic": "رسمي محايد (ينقصه الحماس والبشاشة)",
+        "dominantScore": 0.528,
+        "confidencePercentage": 53,
+        "isSmileSupported": false,
+        "acousticNotes": "التحليل الصوتي الترددي (المقدمة والافتتاحية): النمط السائد هو \"رسمي محايد (ينقصه الحماس والبشاشة)\" بنسبة 53%. خلو ملحوظ من نبرة الابتسامة الصوتية (Happy: 11%) مع طابع رسمي محايد. رصد ذبذبات تردد وعدم يقين صوتي بنسبة (27%).",
+        "allScores": [
+          {
+            "label": "neutral",
+            "labelArabic": "رسمي محايد (ينقصه الحماس والبشاشة)",
+            "score": 0.528,
+            "percentage": 53
+          },
+          {
+            "label": "fearful",
+            "labelArabic": "تردد / عدم يقين",
+            "score": 0.27,
+            "percentage": 27
+          },
+          {
+            "label": "happy",
+            "labelArabic": "ابتسامة وبشاشة",
+            "score": 0.112,
+            "percentage": 11
+          },
+          {
+            "label": "calm",
+            "labelArabic": "حماس وحيوية",
+            "score": 0.05,
+            "percentage": 5
+          },
+          {
+            "label": "sad",
+            "labelArabic": "فتور / انخفاض طاقة",
+            "score": 0.02,
+            "percentage": 2
+          },
+          {
+            "label": "angry",
+            "labelArabic": "انفعال أو حدة",
+            "score": 0.02,
+            "percentage": 2
+          }
+        ]
+      },
+      "duringCall": {
+        "segmentName": "أثناء سير المكالمة",
+        "dominantEmotion": "neutral",
+        "dominantEmotionArabic": "رسمي محايد (ينقصه الحماس والبشاشة)",
+        "dominantScore": 0.473,
+        "confidencePercentage": 47,
+        "isSmileSupported": false,
+        "acousticNotes": "التحليل الصوتي الترددي (أثناء سير المكالمة): النمط السائد هو \"رسمي محايد (ينقصه الحماس والبشاشة)\" بنسبة 47%. رصد ذبذبات تردد وعدم يقين صوتي بنسبة (34%).",
+        "allScores": [
+          {
+            "label": "neutral",
+            "labelArabic": "رسمي محايد (ينقصه الحماس والبشاشة)",
+            "score": 0.473,
+            "percentage": 47
+          },
+          {
+            "label": "fearful",
+            "labelArabic": "تردد / عدم يقين",
+            "score": 0.345,
+            "percentage": 34
+          },
+          {
+            "label": "sad",
+            "labelArabic": "فتور / انخفاض طاقة",
+            "score": 0.06,
+            "percentage": 6
+          },
+          {
+            "label": "happy",
+            "labelArabic": "ابتسامة وبشاشة",
+            "score": 0.053,
+            "percentage": 5
+          },
+          {
+            "label": "calm",
+            "labelArabic": "حماس وحيوية",
+            "score": 0.049,
+            "percentage": 5
+          },
+          {
+            "label": "angry",
+            "labelArabic": "انفعال أو حدة",
+            "score": 0.02,
+            "percentage": 2
+          }
+        ]
+      }
+    }
+  },
+  "customerComplaintAnalysis": {
+    "hasComplaint": false,
+    "complaintsCount": 0,
+    "detectedComplaints": [],
+    "summaryText": "لا يوجد",
+    "alerts": [],
+    "complaintApology": {
+      "didApologizeForComplaint": false,
+      "apologySnippet": "",
+      "apologyTimestamp": "",
+      "evaluation": "لا توجد شكوى من العميل أثناء المكالمة للتحقق من الاعتذار الخاص بها."
+    },
+    "handlingScript": {
+      "isScriptDelivered": false,
+      "scriptSnippet": "",
+      "scriptTimestamp": "",
+      "isStandardPhraseUsed": false,
+      "evaluation": "لا توجد شكوى بالمكالمة تستدعي تبليغ سكريبت تسجيل الشكوى لمنع التكرار."
+    },
+    "otherApologies": []
+  },
+  "medicalConsultationAnalysis": {
+    "isMedicalConsultationPresent": false,
+    "allStepsCompleted": false,
+    "missingStepsCount": 0,
+    "evaluation": ""
+  },
+  "verbalTicsAnalysis": {
+    "hasVerbalTics": true,
+    "detectedTics": [
+      {
+        "word": "تمام",
+        "count": 13,
+        "timestamps": [
+          "00:51",
+          "00:55",
+          "01:12",
+          "01:43",
+          "02:10",
+          "02:22",
+          "02:40",
+          "04:11",
+          "04:13",
+          "04:24",
+          "04:38",
+          "05:14",
+          "05:44"
+        ]
+      }
+    ],
+    "evaluation": "تم رصد لزمات لفظية متكررة من الزميل خلال المكالمة (\"تمام\": 13 مرة)؛ يُوصى بالتنويع اللغوي وتجنب التكرار المفرط."
+  },
+  "agentSilenceSummary": {
+    "totalSilenceSeconds": 0,
+    "silenceCount": 0,
+    "silenceRatio": 0,
+    "silenceSegments": []
+  },
+  "complianceAlerts": [],
+  "totalScore": 90,
+  "recalledHindsightMemories": [
+    {
+      "id": "mem-dir-002",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "جدول الأصناف المطلوبة والبدائل والمثائل في مراجعة MEDSCAPE",
+      "content": "في المراجعة مع MEDSCAPE، المطلوب إلزامياً عمل جدول متصدر بالأصناف التي طلبها العميل والأصناف التي عرضها الزميل كبديل أو مثيل، يوضح اسم الصنف المطلوب، الصنف المعروض، نوع العلاقة (generic / alternative)، السلامة العلمية، والتحقق المعتمد من Medscape Drug Reference.",
+      "entities": [
+        "Medscape",
+        "بدائل",
+        "مثائل",
+        "جدول الأصناف"
+      ],
+      "tags": [
+        "ميدسكاب",
+        "بدائل",
+        "أدوية",
+        "توجيه_مشرف"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-09-29T01:24:00.000Z",
+      "relevanceScore": 0.78
+    },
+    {
+      "id": "mem-dir-001",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "إلزامية إضافة درجة خطوات الاستشارة بجانب اسم المعيار",
+      "content": "تم التأكيد بشكل قاطع على وجوب إضافة درجة على حسب ما تم الرد وسؤال العميل عنه من أسئلة الاستشارة الطبية (من 8) ونسبتها المئوية، بجانب اسم المعيار فقط في بطاقة التقييم.",
+      "entities": [
+        "خطوات الاستشارة",
+        "الدرجة",
+        "معيار الاستشارة الطبية"
+      ],
+      "tags": [
+        "استشارة",
+        "درجات",
+        "توجيه_مشرف"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-09-28T07:00:00.000Z",
+      "relevanceScore": 0.66
+    },
+    {
+      "id": "mem-dir-003",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "معيار شكوى العميل: الاعتذار الخاص وسكريبت عدم التكرار",
+      "content": "عند رصد أي شكوى من العميل بأي صيغة بالعامية المصرية (تأخير أوردر، صنف ناقص، عيب في صنف)، يلزم النظام بالتحقق الصارم من الاعتذار الخاص بالشكوى، وتطبيق سكريبت ضمان عدم التكرار المعتمد، والتنبيه الفوري في حال إغفال أحدهما.",
+      "entities": [
+        "شكوى العميل",
+        "اعتذار خاص",
+        "عدم التكرار",
+        "تأخير الأوردر"
+      ],
+      "tags": [
+        "شكاوى",
+        "اعتذار",
+        "سكريبت",
+        "جودة"
+      ],
+      "importance": "critical",
+      "source": "معايير الجودة المعتمدة",
+      "createdAt": "2026-09-20T10:00:00.000Z",
+      "relevanceScore": 0.66
+    },
+    {
+      "id": "mem-dir-006",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "معيار قياس فترات الصمت (Dead Air) وحساب الأوقات الحقيقية",
+      "content": "الصمت = وقت بداية كلام السطر التالي ناقص وقت نهاية كلام السطر السابق. يُحسب الصمت بين أي متحدثين (زميل ← عميل، عميل ← زميل، أو نفس المتحدث). استبعاد وتجاهل أي مدة صمت 10 ثوانٍ أو أقل (duration <= 10s)، واحتساب وعرض فترات الصمت التي تزيد عن 10 ثوانٍ فقط (duration > 10s) مع عرض الحساب الدقيق بدون تقدير ولا تقريب. وإذا كان التفريغ خالياً من الأوقات يرجع خطأ {'error': 'no_timestamps'}.",
+      "entities": [
+        "لحظات الصمت",
+        "Dead Air",
+        "أكثر من 10 ثواني",
+        "توقيتات"
+      ],
+      "tags": [
+        "صمت",
+        "أوقات",
+        "معيار_مؤكد",
+        "hindsight"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-10-02T21:47:00.000Z",
+      "relevanceScore": 0.66
+    },
+    {
+      "id": "mem-dir-008",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "موضع عرض خدمات أخرى بعد مراجعة الأوردر أو بعد الإجمالي حصراً",
+      "content": "معيار عرض خدمات أخرى (مثل: 'تحب أساعدك في حاجة تانية؟'، 'أي خدمة تانية؟') يُشترط لاعتماده أن يكون قد طُرح حصرياً بعد الانتهاء من مراجعة تفاصيل الطلب أو بعد ذكر وإبلاغ العميل بالمبلغ الإجمالي للطلب. يتم استخراج لحظات مراجعة الأوردر والإجمالي وعبارات العرض حرفياً مع أوقاتها من التفريغ دون تقدير.",
+      "entities": [
+        "عرض خدمات أخرى",
+        "مراجعة الأوردر",
+        "الإجمالي",
+        "توقيت العرض"
+      ],
+      "tags": [
+        "خدمات_أخرى",
+        "أوردر",
+        "إجمالي",
+        "معيار_مؤكد",
+        "hindsight"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-10-02T21:49:00.000Z",
+      "relevanceScore": 0.66
+    },
+    {
+      "id": "mem-dir-009",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "تدقيق اسم العميل واستبعاد الكلمات العامة وأسماء الصيدلية",
+      "content": "يجب استخراج اسم العميل الشخصي الفعلي فقط من منطوق المكالمة الحالية، ويُمنع منعاً باتاً اعتبار كلمات مثل 'آل' أو 'ال' أو 'الطرشوبي' أو 'يا فندم' أو 'حضرتك' أو 'تأنيث' اسماً للعميل، كما يُمنع نقل أسماء عملاء من مكالمات أخرى.",
+      "entities": [
+        "اسم العميل",
+        "استبعاد آل وال",
+        "منع تخمين الأسماء"
+      ],
+      "tags": [
+        "اسم_العميل",
+        "تصحيح_مؤكد",
+        "hindsight"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-10-02T22:12:00.000Z",
+      "relevanceScore": 0.66
+    },
+    {
+      "id": "mem-dir-010",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "حساب الهولد مرتبط حصرياً بوجود موسيقى الانتظار الفعلية في المكالمة الحالية",
+      "content": "يُحسب الهولد حصرياً عند سماع نغمة موسيقى انتظار فعلية في التسجيل الصوتي للمكالمة الحالية، وتُقاس مدته من أول ثانية لصدور الموسيقى إلى ثانية انتهائها فقط. يُمنع منعاً باتاً افتراض أو نسخ فترات هولد أو توقيتات من أمثلة أو مكالمات أخرى، أو احتساب توقيت يتجاوز مدة المكالمة الصوتية.",
+      "entities": [
+        "فترات الهولد",
+        "موسيقى الانتظار",
+        "التزام بالموسيقى"
+      ],
+      "tags": [
+        "هولد",
+        "موسيقى",
+        "تأكيد_مؤكد",
+        "hindsight"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-10-02T22:36:00.000Z",
+      "relevanceScore": 0.66
+    },
+    {
+      "id": "mem-dir-011",
+      "category": "mental_models",
+      "categoryArabic": "النماذج الذهنية وتوجيهات التقييم",
+      "title": "التحقق من اكتمال التفريغ الصوتي حتى نهاية التسجيل",
+      "content": "يجب التحقق الصارم من اكتمال التفريغ النصي لكامل مدة المكالمة الصوتية وعدم انقطاعه قبل نهاية الملف الصوتي، مع مطابقة التوقيتات مع مدة الصوت الفعلية.",
+      "entities": [
+        "اكتمال التفريغ",
+        "تفريغ المكالمة",
+        "مدة المكالمة"
+      ],
+      "tags": [
+        "تفريغ",
+        "انقطاع",
+        "تحقق_مؤكد",
+        "hindsight"
+      ],
+      "importance": "critical",
+      "source": "تأكيد مباشر من المشرف (User Request)",
+      "createdAt": "2026-10-03T05:00:00.000Z",
+      "relevanceScore": 0.66
+    }
+  ],
+  "_engineInfo": {
+    "whisperApiUsed": false,
+    "qwenCleoUsed": false,
+    "wav2vec2EmotionUsed": true,
+    "sileroVadUsed": true,
+    "engineName": "Silero-VAD v4 + القياس الصوتي للنبرة والمشاعر + Gemini Acoustic Diarization",
+    "faintAudioCaptured": true,
+    "speakerDiarizationEnabled": true
+  },
+  "pydanticValidation": {
+    "status": "PASSED",
+    "engine": "Pydantic-Grade Zod Schema Validator v3",
+    "validatedAt": "2026-10-07T09:13:40.190Z"
+  },
+  "audioHash": "4f0837be220be387d97ed30d9ef5519c9586d2f0434a804b8add8cb59ee6934b",
+  "sileroVad": {
+    "engine": "Silero-VAD v4 (Active Speech Detection)",
+    "speechSegments": [
+      {
+        "start": 0.38,
+        "end": 4.38,
+        "confidence": 0.448
+      },
+      {
+        "start": 4.77,
+        "end": 5.5,
+        "confidence": 0.272
+      },
+      {
+        "start": 6.18,
+        "end": 14.72,
+        "confidence": 0.533
+      },
+      {
+        "start": 14.82,
+        "end": 16.16,
+        "confidence": 0.347
+      },
+      {
+        "start": 16.13,
+        "end": 17.02,
+        "confidence": 0.389
+      },
+      {
+        "start": 17.28,
+        "end": 18.24,
+        "confidence": 0.353
+      },
+      {
+        "start": 18.66,
+        "end": 19.55,
+        "confidence": 0.371
+      },
+      {
+        "start": 20.13,
+        "end": 21.89,
+        "confidence": 0.52
+      },
+      {
+        "start": 22.46,
+        "end": 24.51,
+        "confidence": 0.513
+      },
+      {
+        "start": 25.82,
+        "end": 26.78,
+        "confidence": 0.555
+      },
+      {
+        "start": 26.75,
+        "end": 27.71,
+        "confidence": 0.403
+      },
+      {
+        "start": 28.51,
+        "end": 29.6,
+        "confidence": 0.47
+      },
+      {
+        "start": 29.63,
+        "end": 30.98,
+        "confidence": 0.334
+      },
+      {
+        "start": 37.47,
+        "end": 40.45,
+        "confidence": 0.475
+      },
+      {
+        "start": 41.12,
+        "end": 41.98,
+        "confidence": 0.445
+      },
+      {
+        "start": 42.62,
+        "end": 43.46,
+        "confidence": 0.382
+      },
+      {
+        "start": 44.19,
+        "end": 46.21,
+        "confidence": 0.59
+      },
+      {
+        "start": 46.24,
+        "end": 47.39,
+        "confidence": 0.535
+      },
+      {
+        "start": 48.03,
+        "end": 48.77,
+        "confidence": 0.379
+      },
+      {
+        "start": 50.18,
+        "end": 51.23,
+        "confidence": 0.5
+      },
+      {
+        "start": 51.36,
+        "end": 53.82,
+        "confidence": 0.528
+      },
+      {
+        "start": 54.18,
+        "end": 55.23,
+        "confidence": 0.34
+      },
+      {
+        "start": 55.23,
+        "end": 56.61,
+        "confidence": 0.36
+      },
+      {
+        "start": 57.57,
+        "end": 57.95,
+        "confidence": 0.206
+      },
+      {
+        "start": 59.9,
+        "end": 63.49,
+        "confidence": 0.587
+      },
+      {
+        "start": 63.97,
+        "end": 69.09,
+        "confidence": 0.626
+      },
+      {
+        "start": 69.25,
+        "end": 70.91,
+        "confidence": 0.569
+      },
+      {
+        "start": 71.33,
+        "end": 72.51,
+        "confidence": 0.496
+      },
+      {
+        "start": 72.74,
+        "end": 74.75,
+        "confidence": 0.588
+      },
+      {
+        "start": 74.72,
+        "end": 75.87,
+        "confidence": 0.514
+      },
+      {
+        "start": 76.45,
+        "end": 79.9,
+        "confidence": 0.643
+      },
+      {
+        "start": 80.96,
+        "end": 84.64,
+        "confidence": 0.724
+      },
+      {
+        "start": 84.86,
+        "end": 89.66,
+        "confidence": 0.708
+      },
+      {
+        "start": 89.63,
+        "end": 93.98,
+        "confidence": 0.71
+      },
+      {
+        "start": 95.17,
+        "end": 98.59,
+        "confidence": 0.733
+      },
+      {
+        "start": 99.04,
+        "end": 102.88,
+        "confidence": 0.705
+      },
+      {
+        "start": 103.3,
+        "end": 109.82,
+        "confidence": 0.601
+      },
+      {
+        "start": 110.02,
+        "end": 116.1,
+        "confidence": 0.71
+      },
+      {
+        "start": 116.67,
+        "end": 120.13,
+        "confidence": 0.701
+      },
+      {
+        "start": 120.7,
+        "end": 121.63,
+        "confidence": 0.543
+      },
+      {
+        "start": 121.6,
+        "end": 124.38,
+        "confidence": 0.569
+      },
+      {
+        "start": 124.8,
+        "end": 125.47,
+        "confidence": 0.414
+      },
+      {
+        "start": 126.43,
+        "end": 128.45,
+        "confidence": 0.705
+      },
+      {
+        "start": 128.74,
+        "end": 129.66,
+        "confidence": 0.5
+      },
+      {
+        "start": 130.21,
+        "end": 132.74,
+        "confidence": 0.487
+      },
+      {
+        "start": 133.12,
+        "end": 133.89,
+        "confidence": 0.508
+      },
+      {
+        "start": 133.86,
+        "end": 141.57,
+        "confidence": 0.707
+      },
+      {
+        "start": 141.73,
+        "end": 142.34,
+        "confidence": 0.303
+      },
+      {
+        "start": 143.07,
+        "end": 147.01,
+        "confidence": 0.704
+      },
+      {
+        "start": 147.26,
+        "end": 149.5,
+        "confidence": 0.593
+      },
+      {
+        "start": 150.82,
+        "end": 151.68,
+        "confidence": 0.552
+      },
+      {
+        "start": 152.48,
+        "end": 153.82,
+        "confidence": 0.45
+      },
+      {
+        "start": 156.48,
+        "end": 157.54,
+        "confidence": 0.549
+      },
+      {
+        "start": 158.08,
+        "end": 158.98,
+        "confidence": 0.472
+      },
+      {
+        "start": 159.46,
+        "end": 160,
+        "confidence": 0.28
+      },
+      {
+        "start": 160.58,
+        "end": 166.59,
+        "confidence": 0.617
+      },
+      {
+        "start": 167.04,
+        "end": 168.54,
+        "confidence": 0.558
+      },
+      {
+        "start": 168.77,
+        "end": 170.27,
+        "confidence": 0.555
+      },
+      {
+        "start": 171.07,
+        "end": 173.28,
+        "confidence": 0.631
+      },
+      {
+        "start": 173.7,
+        "end": 177.92,
+        "confidence": 0.627
+      },
+      {
+        "start": 178.24,
+        "end": 181.89,
+        "confidence": 0.677
+      },
+      {
+        "start": 183.1,
+        "end": 186.46,
+        "confidence": 0.714
+      },
+      {
+        "start": 187.94,
+        "end": 190.43,
+        "confidence": 0.688
+      },
+      {
+        "start": 190.59,
+        "end": 193.6,
+        "confidence": 0.494
+      },
+      {
+        "start": 193.66,
+        "end": 194.56,
+        "confidence": 0.226
+      },
+      {
+        "start": 200.19,
+        "end": 201.95,
+        "confidence": 0.534
+      },
+      {
+        "start": 202.21,
+        "end": 203.36,
+        "confidence": 0.528
+      },
+      {
+        "start": 203.39,
+        "end": 203.97,
+        "confidence": 0.196
+      },
+      {
+        "start": 207.84,
+        "end": 210.53,
+        "confidence": 0.602
+      },
+      {
+        "start": 211.55,
+        "end": 212.51,
+        "confidence": 0.411
+      },
+      {
+        "start": 213.15,
+        "end": 214.18,
+        "confidence": 0.476
+      },
+      {
+        "start": 215.04,
+        "end": 215.46,
+        "confidence": 0.129
+      },
+      {
+        "start": 215.81,
+        "end": 218.69,
+        "confidence": 0.5
+      },
+      {
+        "start": 218.69,
+        "end": 219.07,
+        "confidence": 0.078
+      },
+      {
+        "start": 219.65,
+        "end": 225.31,
+        "confidence": 0.68
+      },
+      {
+        "start": 226.24,
+        "end": 226.62,
+        "confidence": 0.121
+      },
+      {
+        "start": 226.62,
+        "end": 228.51,
+        "confidence": 0.572
+      },
+      {
+        "start": 229.22,
+        "end": 231.97,
+        "confidence": 0.555
+      },
+      {
+        "start": 233.7,
+        "end": 237.31,
+        "confidence": 0.713
+      },
+      {
+        "start": 237.5,
+        "end": 239.33,
+        "confidence": 0.655
+      },
+      {
+        "start": 240.38,
+        "end": 242.78,
+        "confidence": 0.713
+      },
+      {
+        "start": 243.2,
+        "end": 246.56,
+        "confidence": 0.647
+      },
+      {
+        "start": 247.87,
+        "end": 249.18,
+        "confidence": 0.639
+      },
+      {
+        "start": 249.5,
+        "end": 250.24,
+        "confidence": 0.422
+      },
+      {
+        "start": 253.06,
+        "end": 255.49,
+        "confidence": 0.575
+      },
+      {
+        "start": 256.1,
+        "end": 261.02,
+        "confidence": 0.568
+      },
+      {
+        "start": 261.34,
+        "end": 262.66,
+        "confidence": 0.381
+      },
+      {
+        "start": 262.72,
+        "end": 263.71,
+        "confidence": 0.481
+      },
+      {
+        "start": 263.84,
+        "end": 265.86,
+        "confidence": 0.349
+      },
+      {
+        "start": 272.13,
+        "end": 276.77,
+        "confidence": 0.556
+      },
+      {
+        "start": 276.8,
+        "end": 277.22,
+        "confidence": 0.108
+      },
+      {
+        "start": 277.76,
+        "end": 278.4,
+        "confidence": 0.335
+      },
+      {
+        "start": 278.5,
+        "end": 282.88,
+        "confidence": 0.61
+      },
+      {
+        "start": 283.23,
+        "end": 284.45,
+        "confidence": 0.467
+      },
+      {
+        "start": 284.96,
+        "end": 288.74,
+        "confidence": 0.614
+      },
+      {
+        "start": 289.02,
+        "end": 290.05,
+        "confidence": 0.397
+      },
+      {
+        "start": 290.08,
+        "end": 293.79,
+        "confidence": 0.566
+      },
+      {
+        "start": 293.92,
+        "end": 296.48,
+        "confidence": 0.509
+      },
+      {
+        "start": 296.83,
+        "end": 298.82,
+        "confidence": 0.527
+      },
+      {
+        "start": 298.78,
+        "end": 300.48,
+        "confidence": 0.519
+      },
+      {
+        "start": 301.22,
+        "end": 306.78,
+        "confidence": 0.702
+      },
+      {
+        "start": 307.9,
+        "end": 308.77,
+        "confidence": 0.408
+      },
+      {
+        "start": 308.77,
+        "end": 311.55,
+        "confidence": 0.623
+      },
+      {
+        "start": 311.58,
+        "end": 313.34,
+        "confidence": 0.554
+      },
+      {
+        "start": 313.86,
+        "end": 314.4,
+        "confidence": 0.294
+      },
+      {
+        "start": 314.46,
+        "end": 317.63,
+        "confidence": 0.474
+      },
+      {
+        "start": 320.29,
+        "end": 320.77,
+        "confidence": 0.272
+      },
+      {
+        "start": 321.76,
+        "end": 324.45,
+        "confidence": 0.527
+      },
+      {
+        "start": 324.42,
+        "end": 325.47,
+        "confidence": 0.424
+      },
+      {
+        "start": 326.46,
+        "end": 329.5,
+        "confidence": 0.636
+      },
+      {
+        "start": 329.54,
+        "end": 332.48,
+        "confidence": 0.513
+      },
+      {
+        "start": 332.74,
+        "end": 336.58,
+        "confidence": 0.686
+      },
+      {
+        "start": 336.61,
+        "end": 340.1,
+        "confidence": 0.603
+      },
+      {
+        "start": 340.61,
+        "end": 342.11,
+        "confidence": 0.522
+      },
+      {
+        "start": 343.1,
+        "end": 343.94,
+        "confidence": 0.285
+      },
+      {
+        "start": 344.03,
+        "end": 344.7,
+        "confidence": 0.36
+      },
+      {
+        "start": 344.67,
+        "end": 349.57,
+        "confidence": 0.531
+      },
+      {
+        "start": 349.7,
+        "end": 350.82,
+        "confidence": 0.323
+      },
+      {
+        "start": 351.33,
+        "end": 351.71,
+        "confidence": 0.136
+      },
+      {
+        "start": 351.68,
+        "end": 353.5,
+        "confidence": 0.374
+      },
+      {
+        "start": 354.02,
+        "end": 355.14,
+        "confidence": 0.268
+      }
+    ],
+    "silenceSegments": [
+      {
+        "timeStart": "00:24",
+        "timeEnd": "00:25",
+        "duration": 1.3,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.3 ثانية)"
+      },
+      {
+        "timeStart": "00:30",
+        "timeEnd": "00:37",
+        "duration": 6.5,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (6.5 ثانية)"
+      },
+      {
+        "timeStart": "00:48",
+        "timeEnd": "00:50",
+        "duration": 1.4,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.4 ثانية)"
+      },
+      {
+        "timeStart": "00:57",
+        "timeEnd": "00:59",
+        "duration": 1.9,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.9 ثانية)"
+      },
+      {
+        "timeStart": "01:19",
+        "timeEnd": "01:20",
+        "duration": 1.1,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.1 ثانية)"
+      },
+      {
+        "timeStart": "01:33",
+        "timeEnd": "01:35",
+        "duration": 1.2,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.2 ثانية)"
+      },
+      {
+        "timeStart": "02:29",
+        "timeEnd": "02:30",
+        "duration": 1.3,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.3 ثانية)"
+      },
+      {
+        "timeStart": "02:33",
+        "timeEnd": "02:36",
+        "duration": 2.7,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (2.7 ثانية)"
+      },
+      {
+        "timeStart": "03:01",
+        "timeEnd": "03:03",
+        "duration": 1.2,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.2 ثانية)"
+      },
+      {
+        "timeStart": "03:06",
+        "timeEnd": "03:07",
+        "duration": 1.5,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.5 ثانية)"
+      },
+      {
+        "timeStart": "03:14",
+        "timeEnd": "03:20",
+        "duration": 5.6,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (5.6 ثانية)"
+      },
+      {
+        "timeStart": "03:23",
+        "timeEnd": "03:27",
+        "duration": 3.9,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (3.9 ثانية)"
+      },
+      {
+        "timeStart": "03:30",
+        "timeEnd": "03:31",
+        "duration": 1,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1 ثانية)"
+      },
+      {
+        "timeStart": "03:51",
+        "timeEnd": "03:53",
+        "duration": 1.7,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.7 ثانية)"
+      },
+      {
+        "timeStart": "03:59",
+        "timeEnd": "04:00",
+        "duration": 1,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1 ثانية)"
+      },
+      {
+        "timeStart": "04:06",
+        "timeEnd": "04:07",
+        "duration": 1.3,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.3 ثانية)"
+      },
+      {
+        "timeStart": "04:10",
+        "timeEnd": "04:13",
+        "duration": 2.8,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (2.8 ثانية)"
+      },
+      {
+        "timeStart": "04:25",
+        "timeEnd": "04:32",
+        "duration": 6.3,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (6.3 ثانية)"
+      },
+      {
+        "timeStart": "05:06",
+        "timeEnd": "05:07",
+        "duration": 1.1,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (1.1 ثانية)"
+      },
+      {
+        "timeStart": "05:17",
+        "timeEnd": "05:20",
+        "duration": 2.7,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (2.7 ثانية)"
+      },
+      {
+        "timeStart": "05:55",
+        "timeEnd": "05:58",
+        "duration": 3.4,
+        "fromSpeaker": "موظف خدمة العملاء",
+        "toSpeaker": "موظف خدمة العملاء",
+        "description": "فترة صمت وسكوت ختامية تم رصدها بدقة عبر Silero VAD (3.4 ثانية)"
+      }
+    ],
+    "speechRatio": 0.757,
+    "totalAudioDuration": 358.5,
+    "speechDuration": 271.5,
+    "silenceDuration": 87
+  },
+  "pipelineReviewMeta": {
+    "reviewCount": 1,
+    "consensusStatus": "SINGLE_REVIEW",
+    "agreementScore": 100,
+    "discrepancies": []
+  },
+  "transcriptionAudit": {
+    "isTranscriptComplete": true,
+    "lastTranscribedTimestamp": "05:55",
+    "callTotalDuration": "05:59",
+    "totalTurns": 123,
+    "auditVerdict": "تم تفريغ المكالمة بالكامل وبدقة شاملة دون انقطاع حتى نهاية التسجيل الصوتي.",
+    "coverageRatio": 99
+  },
+  "pipelineStages": [
+    {
+      "step": 1,
+      "name": "audio_input",
+      "nameArabic": "استلام وتدقيق مدخلات الصوت",
+      "tool": "Express Audio Controller",
+      "status": "completed",
+      "details": "حجم الملف: 5601.9 KB"
+    },
+    {
+      "step": 2,
+      "name": "audio_validation",
+      "nameArabic": "التحقق من سلامة البايتات وصيغة الصوت",
+      "tool": "Audio MIME & Stream Validator",
+      "status": "completed",
+      "details": "الصيغة: audio/wav"
+    },
+    {
+      "step": 3,
+      "name": "audio_preprocessing",
+      "nameArabic": "المعالجة الأولية واستخراج الإشارات",
+      "tool": "FFmpeg PCM 16kHz Converter",
+      "status": "completed",
+      "details": "تجهيز الترددات وتهيئتها"
+    },
+    {
+      "step": 4,
+      "name": "voice_activity_detection",
+      "nameArabic": "كشف النشاط الصوتي والصمت",
+      "tool": "Silero-VAD v4",
+      "status": "completed",
+      "details": "نسبة الكلام: 75.7%"
+    },
+    {
+      "step": 5,
+      "name": "speaker_processing",
+      "nameArabic": "فصل المتحدثين (الزميل vs العميل)",
+      "tool": "Acoustic Speaker Diarization",
+      "status": "completed",
+      "details": "عزل سماعة الكول سنتر عن الهاتف الخارجي"
+    },
+    {
+      "step": 6,
+      "name": "primary_transcription",
+      "nameArabic": "التفريغ الصوتي الحساس مع حظر التخمين",
+      "tool": "Gemini 2.5 Flash Acoustic Engine",
+      "status": "completed",
+      "details": "تفريغ حرفي مع إدراج [غير مؤكد] للأصوات المشوشة"
+    },
+    {
+      "step": 7,
+      "name": "transcript_cleaning",
+      "nameArabic": "تنظيف النص وتطبيع الأسماء والألقاب",
+      "tool": "Egyptian Dialect Normalizer",
+      "status": "completed",
+      "details": "تطبيع أسماء العملاء المركبة والمفردة (مثل عز الدين)"
+    },
+    {
+      "step": 8,
+      "name": "transcript_validation",
+      "nameArabic": "التحقق من تسلسل التوقيتات والأدوار",
+      "tool": "Timeline & Boundary Verifier",
+      "status": "completed",
+      "details": "تدقيق ترابط وتوقيتات مقاطع المحادثة"
+    },
+    {
+      "step": 9,
+      "name": "call_analysis",
+      "nameArabic": "تحليل سياق المكالمة وسيناريو المحادثة",
+      "tool": "Context & Intent Analyzer",
+      "status": "completed",
+      "details": "تحليل الطلبات بناءً على النص الفعلي فقط"
+    },
+    {
+      "step": 10,
+      "name": "qa_criteria_evaluation",
+      "nameArabic": "تقييم معايير الجودة الـ 15 المعتمدة",
+      "tool": "QA Criteria Evaluation Engine",
+      "status": "completed",
+      "details": "تقييم الترحيب، الاسم، اللقب، الهولد، الاعتذار، وإنهاء المكالمة"
+    },
+    {
+      "step": 11,
+      "name": "evidence_extraction",
+      "nameArabic": "استخراج الأدلة والنصوص والتوقيتات الصريحة",
+      "tool": "Evidence Extraction Engine",
+      "status": "completed",
+      "details": "توثيق التوقيت والنص المقتبس (Snippet) لكل معيار"
+    },
+    {
+      "step": 12,
+      "name": "independent_verification",
+      "nameArabic": "المراجعة المستقلة الثانية (Review 2)",
+      "tool": "Gemini Cross-Verification Review 2",
+      "status": "completed",
+      "details": "تدقيق نقدي مستقل للمراجعة الأولى"
+    },
+    {
+      "step": 13,
+      "name": "conflict_resolution",
+      "nameArabic": "فض النزاع بالدليل الحاسم (Review 3 Arbiter)",
+      "tool": "Evidence-Based Arbiter",
+      "status": "completed",
+      "details": "حسم المحكم بناءً على الدليل المباشر (0 نقاط)"
+    },
+    {
+      "step": 14,
+      "name": "final_result_validation",
+      "nameArabic": "التدقيق والتطهير الهيكلي النهائي",
+      "tool": "Pydantic / Zod Master Schema Validator",
+      "status": "completed",
+      "details": "تطهير الكائنات ومنع أي أخطاء بنية وضبط الحقول"
+    },
+    {
+      "step": 15,
+      "name": "save_final_result",
+      "nameArabic": "الحفظ المفهرس بالبصمة الصوتية",
+      "tool": "SHA-256 Audio Hash Storage",
+      "status": "completed",
+      "details": "تم الحفظ برمز البصمة: 4f0837be220b..."
+    }
+  ],
+  "userEditedAgentName": true,
+  "savedAt": "2026-10-07T09:13:40.192Z"
+}

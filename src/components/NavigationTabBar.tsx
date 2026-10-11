@@ -13,15 +13,19 @@ import {
   Moon,
   Globe,
   PanelRightClose,
-  Brain
+  Brain,
+  BarChart3
 } from "lucide-react";
 import { Language, translations } from "../utils/translations";
+import { getRole } from "../utils/authClient";
+import { useState } from "react";
 
 export type NavigationTab = 
   | "home" // الرئيسية
   | "transcription" // تفريغ المكالمات
   | "invoice_audit" // تدقيق الفواتير
   | "reports" // التقارير
+  | "analytics" // تحليلات الأداء
   | "memory" // ذاكرة النظام المستمرة
   | "benchmark" // المكالمة المعيارية
   | "settings" // الإعدادات
@@ -39,6 +43,8 @@ export const APP_NAVIGATION_TABS: TabItem[] = [
   { id: "transcription", icon: Headphones },
   { id: "invoice_audit", icon: Receipt },
   { id: "reports", icon: FileSpreadsheet },
+  { id: "analytics", icon: BarChart3 },
+  { id: "memory", icon: Brain },
   { id: "settings", icon: Settings },
   { id: "about", icon: Info },
 ];
@@ -46,9 +52,6 @@ export const APP_NAVIGATION_TABS: TabItem[] = [
 interface NavigationTabBarProps {
   activeTab: NavigationTab;
   onTabChange: (tab: NavigationTab) => void;
-  hasResult: boolean;
-  onOpenReceiptModal: () => void;
-  onOpenExcelModal: () => void;
   onUploadInvoiceClick: () => void;
   theme: "light" | "dark";
   onThemeChange: (theme: "light" | "dark") => void;
@@ -62,9 +65,6 @@ interface NavigationTabBarProps {
 export const NavigationTabBar: React.FC<NavigationTabBarProps> = ({
   activeTab,
   onTabChange,
-  hasResult,
-  onOpenReceiptModal,
-  onOpenExcelModal,
   onUploadInvoiceClick,
   theme,
   onThemeChange,
@@ -75,6 +75,9 @@ export const NavigationTabBar: React.FC<NavigationTabBarProps> = ({
   reportsCount = 0,
 }) => {
   const currentLang: Language = language === "en" ? "en" : "ar";
+  const [logoFailed, setLogoFailed] = useState(false);
+  // The memory bank is an admin-only area when authentication is enabled
+  const visibleTabs = APP_NAVIGATION_TABS.filter((tab) => !(tab.id === "memory" && getRole() === "analyst"));
   const t = translations[currentLang] || translations.ar;
 
   if (!isOpen) {
@@ -90,16 +93,17 @@ export const NavigationTabBar: React.FC<NavigationTabBarProps> = ({
       <div className="p-4 sm:p-5 border-b border-[#EAE3D9] dark:border-stone-800 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#C25E38]/10 text-[#C25E38] border border-[#C25E38]/20 flex items-center justify-center shrink-0 shadow-2xs overflow-hidden">
-            <img 
-              src="/qa-logo.png" 
-              alt="QA Logo" 
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-              onError={(e) => {
-                (e.currentTarget as HTMLElement).style.display = 'none';
-              }}
-            />
-            <Headphones className="w-5 h-5 text-[#C25E38] hidden" />
+{logoFailed ? (
+              <Headphones className="w-5 h-5 text-[#C25E38]" />
+            ) : (
+              <img
+                src="/qa-logo.png"
+                alt="QA Logo"
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={() => setLogoFailed(true)}
+              />
+            )}
           </div>
           <div>
             <div className="flex items-center gap-1.5">
@@ -142,7 +146,7 @@ export const NavigationTabBar: React.FC<NavigationTabBarProps> = ({
         </div>
 
         <nav className="flex flex-col gap-1.5">
-          {APP_NAVIGATION_TABS.map((tab) => {
+          {visibleTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             const label = t.tabs[tab.id];

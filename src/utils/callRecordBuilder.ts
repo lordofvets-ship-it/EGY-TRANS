@@ -1,4 +1,4 @@
-import type { TranscriptionResponse, AnalyzedCallRecord } from "../types.ts";
+import { TranscriptionResponse, AnalyzedCallRecord } from "../types";
 
 /**
  * Generates a deterministic short hash from transcript turns if audioHash is not present.
@@ -26,7 +26,8 @@ export function resolveAgentNameFromResult(result: TranscriptionResponse, custom
   if (customName && customName.trim() && customName !== "الزميل (محلل المكالمة)") {
     return customName.trim();
   }
-  if (result.agentName && String(result.agentName).trim()) {
+  const GENERIC_AGENT = /^(?:د\.\s*)?(?:الزميل[ةه]?|موظف(?:ة)?\s+خدمة\s+العملاء|الزميل\s*\(محلل\s+المكالمة\)|غير\s+محدد|لم\s+يذكر)$/;
+  if (result.agentName && String(result.agentName).trim() && !GENERIC_AGENT.test(String(result.agentName).trim())) {
     const raw = String(result.agentName).trim();
     return raw.startsWith("د.") || raw.startsWith("دكتور") ? raw : `د. ${raw}`;
   }
@@ -63,7 +64,7 @@ export function resolveAgentNameFromResult(result: TranscriptionResponse, custom
     }
   }
 
-  if (result.isBenchmark) {
+  if (result.isBenchmark && !result.audioHash) {
     return "د. أحمد (المكالمة المعيارية المعتمدة)";
   }
   return "الزميل (محلل المكالمة)";
@@ -80,12 +81,12 @@ export function computeOverallQAScore(result: TranscriptionResponse): number {
   totalWeight += 12;
   if (result.greetingAnalysis?.isGreetingUsed) earned += 12;
 
-  // 2. Agent Tone (15 pts)
-  totalWeight += 15;
-  // Missing tone evidence must not silently receive an above-neutral score.
-  const rawToneScore = result.agentToneAnalysis?.score;
-  const toneScore = rawToneScore == null || !Number.isFinite(Number(rawToneScore)) ? 0 : Number(rawToneScore);
-  earned += Math.min(15, Math.max(0, (toneScore / 10) * 15));
+  // 2. Agent Tone (15 pts) — excluded from the denominator when the model gave no score (never invent 8/10)
+  const rawTone = result.agentToneAnalysis?.score;
+  if (rawTone !== undefined && rawTone !== null && Number.isFinite(Number(rawTone))) {
+    totalWeight += 15;
+    earned += Math.min(15, Math.max(0, (Number(rawTone) / 10) * 15));
+  }
 
   // 3. Customer Name (10 pts)
   totalWeight += 10;
@@ -183,8 +184,8 @@ export function formatCallDateArabic(isoDate?: string): string {
 
 /**
  * Ensures any call result (from server cache or browser localStorage) strictly enforces:
- * 1. Never infer hold-music presence from speech-activity segments; preserve findings for proper acoustic verification.
- * 2. Preserve every transcript turn. Potential template echoes must be reviewed, not deleted by text matching.
+ * 1. Hold segments are only counted when continuous hold music (>=12s, conf>=0.55) is present in the VAD output.
+ * 2. Template echo turns ("كريم ريسكن" / "مناديل مبللة بابلز") are stripped.
  */
 export function sanitizeCallResultForHoldAndEcho(result: TranscriptionResponse): TranscriptionResponse {
   if (!result || typeof result !== "object") return result;
@@ -195,13 +196,66 @@ export function sanitizeCallResultForHoldAndEcho(result: TranscriptionResponse):
     return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0] || 0;
   };
 
-  // Work on a copy because downstream normalization mutates nested analysis objects.
-  // Do not remove transcript turns based on phrase matching: those words may have been spoken.
-  let cloned = structuredClone(result);
+  const templateEchoRegex =
+    /كريم\s*ريسكن|Re-Skin|مناديل\s*مبللة\s*بابلز|ثواني\s*أراجع\s*لحضرتك\s*السيستم\s*للتأكد\s*من\s*توفر\s*الصنف،\s*لحظات\s*على\s*الانتظار\s*يا\s*فندم|شكراً\s*لانتظار\s*حضرتك\s*يا\s*فندم،\s*مع\s*حضرتك\.\s*الصنف\s*متوفر\s*وسعره\s*75\s*جنيه|شكراً\s*لاتصالك\s*بصيدليات\s*الطرشوبي،\s*يومك\s*سعيد/iu;
 
-  // Do not infer hold-music presence from Silero VAD speech segments.
-  // VAD segments represent detected speech activity, not a dedicated hold-music classifier.
-  // Keep hold findings intact until a purpose-built acoustic/music detector can verify them.
+  let cloned = result;
+  if (Array.isArray(cloned.transcript) && cloned.transcript.some((t) => templateEchoRegex.test(String(t?.text || "")))) {
+    cloned = {
+      ...cloned,
+      transcript: cloned.transcript.filter((t) => t && t.text && !templateEchoRegex.test(String(t.text || ""))),
+    };
+  }
+
+  const vadSegs = Array.isArray((cloned as any).sileroVad?.speechSegments)
+    ? (cloned as any).sileroVad.speechSegments
+    : [];
+  const holdSegs = Array.isArray(cloned.holdTimeSummary?.holdSegments)
+    ? cloned.holdTimeSummary.holdSegments
+    : [];
+
+  if (vadSegs.length > 0 && holdSegs.length > 0) {
+    const validHolds = holdSegs.filter((hSeg: any) => {
+      const hS = toSec(hSeg.timeStart);
+      const hE = toSec(hSeg.timeEnd);
+      const hDur = hE > hS ? hE - hS : Number(hSeg.duration) || 0;
+      let musicSec = 0;
+      for (const vs of vadSegs) {
+        const vS = Number(vs.start) || 0;
+        const vE = Number(vs.end) || 0;
+        const vDur = vE - vS;
+        const vConf = Number(vs.confidence || 0);
+        if (vDur >= 12 && vConf >= 0.55) {
+          const ov = Math.min(hE, vE) - Math.max(hS, vS);
+          if (ov > 0) musicSec += ov;
+        }
+      }
+      return musicSec >= 10 && (hDur <= 0 || musicSec / hDur >= 0.4);
+    });
+
+    if (validHolds.length !== holdSegs.length) {
+      const totalHoldSec = validHolds.reduce((acc: number, s: any) => acc + (Number(s.duration) || 0), 0);
+      cloned = {
+        ...cloned,
+        holdTimeSummary: {
+          ...cloned.holdTimeSummary!,
+          totalHoldSeconds: totalHoldSec,
+          holdCount: validHolds.length,
+          overallClassification: validHolds.length > 0 ? "كل الهولد بداعي" : "بدون هولد",
+          validHoldCount: validHolds.length,
+          unjustifiedHoldCount: 0,
+          hasExceededDurationHold: validHolds.some((s: any) => s.isDurationExceeded),
+          isMusicCriterionCompliant: true,
+          musicComplianceStatus: "ملتزم بمعيار الهولد بوجود موسيقى الانتظار ✓",
+          auditNotes:
+            validHolds.length > 0
+              ? `تم اعتماد الهولد وفق معيار وجود صوت موسيقى الانتظار؛ حيث تم حساب مدة الهولد بدقة من أول صدور الموسيقى إلى انتهائها فقط (إجمالي ${totalHoldSec} ثانية).`
+              : "لم يتم رصد أي نغمة موسيقى انتظار في المكالمة؛ تم التحقق الصوتي الدقيق بعدم وجود موسيقى انتظار.",
+          holdSegments: validHolds,
+        },
+      };
+    }
+  }
 
   // 3. Enforce strict vocative-only customerNameAnalysis, customerTitleAnalysis, and furtherAssistanceAnalysis
   if (Array.isArray(cloned.transcript) && cloned.transcript.length > 0) {

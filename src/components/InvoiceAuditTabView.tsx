@@ -143,7 +143,7 @@ export const InvoiceAuditTabView: React.FC<InvoiceAuditTabViewProps> = ({
 
           <div className="flex flex-wrap items-center justify-center gap-2">
             <span className="text-[11px] px-3 py-1 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-full border border-[#EAE3D9] dark:border-stone-700 font-mono font-semibold">
-              PNG • JPG • JPEG • WEBP • PDF
+              PNG • JPG • JPEG • WEBP
             </span>
             <span className="text-[11px] px-3 py-1 bg-[#C25E38]/10 text-[#C25E38] rounded-full border border-[#C25E38]/20 font-bold flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-[#C25E38]" />

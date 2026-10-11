@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { applyAuthoritativeBudget } from "../utils/memoryGovernance.js";
 import { 
   HindsightMemoryEntry, 
   HindsightMemoryCategory, 
@@ -119,18 +120,6 @@ const DEFAULT_CONFIRMED_MEMORIES: HindsightMemoryEntry[] = [
     createdAt: "2026-09-22T14:30:00.000Z"
   },
   {
-    id: "mem-dir-004",
-    category: "mental_models",
-    categoryArabic: "النماذج الذهنية وتوجيهات التقييم",
-    title: "ضوابط الواجهة الإنجليزية وتبيويب سحب الملفات",
-    content: "عند تحويل التطبيق للغة الإنجليزية، تم التأكيد على تعديل كامل الواجهة للإنجليزية، حصر تبويب سحب الملفات في تبويب تفريغ الملفات فقط، ونقل شريط المهام الجانبي إلى اليسار لتناسب اتجاه LTR.",
-    entities: ["اللغة الإنجليزية", "شريط المهام", "سحب الملفات"],
-    tags: ["واجهة", "تنسيق", "توجيه_مشرف"],
-    importance: "high",
-    source: "تأكيد مباشر من المشرف (User Request)",
-    createdAt: "2026-09-28T06:00:00.000Z"
-  },
-  {
     id: "mem-dir-005",
     category: "mental_models",
     categoryArabic: "النماذج الذهنية وتوجيهات التقييم",
@@ -197,7 +186,7 @@ class HindsightMemoryEngine {
       if (fs.existsSync(BANK_FILE)) {
         const raw = fs.readFileSync(BANK_FILE, "utf-8");
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           this.memories = parsed;
           this.isLoaded = true;
           return;
@@ -233,9 +222,14 @@ class HindsightMemoryEngine {
    */
   public getAuthoritativeDirectives(): HindsightMemoryEntry[] {
     this.ensureLoaded();
-    return this.memories.filter(
+    const all = this.memories.filter(
       (m) => m.category === "mental_models" || m.importance === "critical"
     );
+    const { kept, dropped } = applyAuthoritativeBudget(all);
+    if (dropped.length > 0) {
+      console.warn(`[Hindsight] Prompt budget exceeded: ${dropped.length} directive(s) were NOT injected (${dropped.map((d) => d.id).join(", ")}). Consolidate or remove memories.`);
+    }
+    return kept;
   }
 
   /**

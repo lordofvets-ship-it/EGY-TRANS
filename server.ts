@@ -2,24 +2,29 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import os from "os";
-import { isSafeBackupFilename, isValidBackupToken } from "./src/utils/security.ts";
-import { evaluateAccessPolicy } from "./src/utils/accessPolicy.ts";
-import { execFile } from "child_process";
+import { exec } from "child_process";
 import { promisify } from "util";
-import { decodeAudioBase64 } from "./src/utils/audioInput.ts";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import OpenAI, { toFile } from "openai";
 import Tesseract from "tesseract.js";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import { hindsightEngine } from "./src/services/hindsightEngine.js";
-import { runSileroVad } from "./src/utils/vadEngine.js";
-import { computeAudioHash, getCachedAnalysisByHash, saveAnalysisByHash, deleteAudioCacheByHash, getAllCachedAnalyses, updateCachedAnalysisMetadata, deleteAllAudioCache, normalizeAudioHash } from "./src/utils/audioCache.js";
+import { runSileroVad, isMusicBlock, describeVadEngine } from "./src/utils/vadEngine.js";
+import { computeAudioHash, getCachedAnalysisByHash, saveAnalysisByHash, deleteAudioCacheByHash, getAllCachedAnalyses, updateCachedAnalysisMetadata, deleteAllAudioCache, normalizeAudioHash, saveAudioFile, findAudioFile, pruneAudioFiles } from "./src/utils/audioCache.js";
 import { buildAnalyzedCallRecord, getDeterministicCallId } from "./src/utils/callRecordBuilder.js";
 import { validateAndSanitizeQAResult } from "./src/utils/pydanticValidator.js";
 import { compareEvaluationReviews, buildArbiterPrompt } from "./src/utils/multiReviewConsensus.js";
+import { authMiddleware, requireAdmin, isAuthEnabled, checkPassword, signToken, verifyToken } from "./src/utils/auth.js";
+const authHelpers = { verifyToken };
+import { ANALYSIS_VERSION, stripPhantomBenchmark, buildPipelineStages, redactTranscript, evaluateAlert, buildAlertPayload, sendAlertWebhook } from "./src/utils/qaIntegrity.js";
+import { computeOverallQAScore } from "./src/utils/callRecordBuilder.js";
+import { validateMemoryInput } from "./src/utils/memoryGovernance.js";
+import { detectGenuineIllnessConsultation, symptomTurnsOf, consultationTopicFor } from "./src/utils/medicalConsultation.js";
 
-const execFileAsync = promisify(execFile);
+const execAsync = promisify(exec);
 
 /**
  * Probes exact audio duration in seconds using ffprobe directly on the audio buffer.
@@ -28,7 +33,7 @@ async function probeAudioDuration(buffer: Buffer, ext: string = "wav"): Promise<
   const tmpPath = path.join(os.tmpdir(), `probe_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
   try {
     await fs.promises.writeFile(tmpPath, buffer);
-    const { stdout } = await execFileAsync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", tmpPath], { timeout: 10000, windowsHide: true });
+    const { stdout } = await execAsync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${tmpPath}"`);
     const val = parseFloat(stdout.trim());
     return !isNaN(val) && isFinite(val) && val > 0 ? Math.round(val) : 0;
   } catch {
@@ -41,7 +46,7 @@ async function probeAudioDuration(buffer: Buffer, ext: string = "wav"): Promise<
 dotenv.config();
 
 const app = express();
-const PORT = Number(process.env.PORT) > 0 ? Number(process.env.PORT) : 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 // Lazy initialization of OpenAI client for Whisper
 let openaiClient: OpenAI | null = null;
@@ -61,47 +66,16 @@ function getOpenAIClient(): OpenAI | null {
   return openaiClient;
 }
 
-// Baseline security headers for all responses; API data is sensitive and should not be cached.
-app.use((req, res, next) => {
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("Referrer-Policy", "no-referrer");
-  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  if (req.path.startsWith("/api/") && req.path !== "/api/health") {
-    res.setHeader("Cache-Control", "no-store, private, max-age=0");
-    res.setHeader("Pragma", "no-cache");
-  }
-  next();
-});
-
-// Production safety gate: keep the app private until per-user sessions and tenant isolation exist.
-// Basic Auth is an interim barrier, not the final commercial authentication model.
-app.use((req, res, next) => {
-  const decision = evaluateAccessPolicy({
-    path: req.path,
-    method: req.method,
-    authorization: req.get("authorization") || "",
-    origin: req.get("origin"),
-    referer: req.get("referer"),
-    host: req.get("host"),
-    protocol: req.protocol,
-    forwardedProto: req.get("x-forwarded-proto"),
-  }, {
-    production: process.env.NODE_ENV === "production",
-    username: process.env.APP_BASIC_AUTH_USER || "",
-    password: process.env.APP_BASIC_AUTH_PASSWORD || "",
-  });
-
-  if (decision.allowed) return next();
-  if (decision.challenge) {
-    res.setHeader("WWW-Authenticate", 'Basic realm="Call Transcriber", charset="UTF-8"');
-  }
-  return res.status(decision.status).json({ error: decision.error });
-});
+// ---- Security hardening -----------------------------------------------------
+app.disable("x-powered-by");
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: Number(process.env.API_RATE_LIMIT) || 1000, standardHeaders: true, legacyHeaders: false, message: { error: "تم تجاوز الحد المسموح من الطلبات. حاول لاحقاً." } });
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, standardHeaders: true, legacyHeaders: false, message: { error: "محاولات دخول كثيرة. حاول بعد 15 دقيقة." } });
+app.use("/api/", apiLimiter);
 
 // Increase JSON request size limits to handle base64 audio data
-app.use(express.json({ limit: "70mb" }));
-app.use(express.urlencoded({ limit: "1mb", extended: true, parameterLimit: 1000 }));
+app.use(express.json({ limit: "100mb" }));
+app.use(express.urlencoded({ limit: "100mb", extended: true }));
 
 // Body parser error handling middleware to prevent HTML error pages on payload size issues
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -113,10 +87,27 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
       });
     }
     return res.status(err.status || 400).json({
-      error: "بيانات الطلب غير صالحة أو تعذر قراءتها.",
+      error: "خطأ في قراءة بيانات الطلب: " + (err.message || "بيانات غير صالحة"),
     });
   }
   next();
+});
+
+// All /api routes (except health/login/status) require a valid token when APP_ADMIN_PASSWORD is set.
+app.use(authMiddleware);
+
+app.post("/api/auth/login", loginLimiter, (req, res): any => {
+  if (!isAuthEnabled()) return res.json({ token: "", role: "admin", authRequired: false });
+  const role = checkPassword(String(req.body?.password || ""));
+  if (!role) return res.status(401).json({ error: "كلمة المرور غير صحيحة." });
+  res.json({ token: signToken(role), role, authRequired: true });
+});
+
+app.get("/api/auth/status", (req, res) => {
+  const { verifyToken } = authHelpers;
+  const h = String(req.headers.authorization || "");
+  const v = h.startsWith("Bearer ") ? verifyToken(h.slice(7).trim()) : null;
+  res.json({ authRequired: isAuthEnabled(), authenticated: !isAuthEnabled() || Boolean(v), role: !isAuthEnabled() ? "admin" : v?.role || null });
 });
 
 // Endpoint to check status
@@ -124,34 +115,30 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
 });
 
-// Sensitive project backups must never be downloadable anonymously.
-// Configure BACKUP_DOWNLOAD_TOKEN with a long random secret in the deployment environment.
-app.get("/api/download-backup", (req, res) => {
-  const expectedToken = process.env.BACKUP_DOWNLOAD_TOKEN?.trim() || "";
-  const suppliedToken = req.get("x-backup-token") || "";
-  const authorized = isValidBackupToken(suppliedToken, expectedToken);
-  if (!authorized) {
-    return res.status(expectedToken ? 401 : 503).json({
-      error: expectedToken ? "غير مصرح بتنزيل النسخة الاحتياطية." : "تنزيل النسخ الاحتياطية معطل حتى إعداد BACKUP_DOWNLOAD_TOKEN.",
-    });
+// Admin-only backup: streams a fresh tar.gz of the data directory (analyses, memory bank, audio).
+app.get("/api/download-backup", requireAdmin, async (req, res): Promise<any> => {
+  const dataDir = path.join(process.cwd(), "data");
+  if (!fs.existsSync(dataDir)) return res.status(404).json({ error: "لا توجد بيانات للنسخ الاحتياطي بعد." });
+  const stamp = new Date().toISOString().slice(0, 10);
+  const tmp = path.join(os.tmpdir(), `qa_backup_${Date.now()}.tar.gz`);
+  try {
+    await execAsync(`tar -czf "${tmp}" -C "${process.cwd()}" data`);
+    res.download(tmp, `QA_Backup_${stamp}.tar.gz`, () => { fs.promises.unlink(tmp).catch(() => {}); });
+  } catch (e: any) {
+    res.status(500).json({ error: "تعذّر إنشاء النسخة الاحتياطية: " + (e?.message || e) });
   }
+});
 
-  // Never cache sensitive backup responses in browsers or intermediary proxies.
-  res.setHeader("Cache-Control", "no-store, private, max-age=0");
-  res.setHeader("Pragma", "no-cache");
-  const configuredFilename = process.env.BACKUP_DOWNLOAD_FILE?.trim() || "backup_2026-09-20.zip";
-  if (!isSafeBackupFilename(configuredFilename)) {
-    return res.status(503).json({ error: "إعداد اسم ملف النسخة الاحتياطية غير صالح." });
-  }
-  const backupPath = path.join(process.cwd(), "backups", configuredFilename);
-  if (!fs.existsSync(backupPath) || !fs.statSync(backupPath).isFile()) {
-    return res.status(404).json({ error: "ملف النسخة الاحتياطية غير موجود." });
-  }
-  return res.download(backupPath, configuredFilename);
+// Streams the stored call recording (supports HTTP Range so the browser can seek).
+app.get("/api/audio/:hash", (req, res): any => {
+  const file = findAudioFile(String(req.params.hash || ""));
+  if (!file) return res.status(404).json({ error: "التسجيل الصوتي غير محفوظ لهذه المكالمة." });
+  res.sendFile(file);
 });
 
 // Endpoint to check Whisper, QwenCleo-ASR & acoustic engine status
-app.get("/api/engine-status", (req, res) => {
+app.get("/api/engine-status", async (req, res) => {
+  const vad = await describeVadEngine();
   const hasOpenAiKey = !!(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim() !== "");
   const qwenUrl = process.env.QWEN_CLEO_API_URL?.trim();
   const isOpenRouter = qwenUrl ? qwenUrl.includes("openrouter.ai") : false;
@@ -167,9 +154,11 @@ app.get("/api/engine-status", (req, res) => {
   if (hasOpenAiKey) engines.push("OpenAI Whisper (whisper-1)");
   if (wav2vec2Available) engines.push("Hugging Face Wav2Vec2 Emotion");
   engines.push("Gemini Multimodal Acoustic Diarization");
+  engines.push(vad.engine);
 
   res.json({
     status: "ok",
+    vad,
     qwenCleoAvailable,
     qwenCleoMode: hasValidQwenUrl ? "vLLM Server" : hasHfToken ? "Hugging Face Inference API" : "standby",
     whisperApiAvailable: hasOpenAiKey,
@@ -978,8 +967,15 @@ async function analyzeEmotionWithWav2Vec2(buffer: Buffer) {
 
 // Initialize Gemini client globally on the server side
 const apiKey = process.env.GEMINI_API_KEY;
+// Keys created for Vertex AI (express mode) start with "AQ." and must be used with vertexai:true.
+// Force a mode with GEMINI_USE_VERTEX=true|false.
+const useVertexAi =
+  process.env.GEMINI_USE_VERTEX === "true" ||
+  (process.env.GEMINI_USE_VERTEX !== "false" && String(apiKey || "").startsWith("AQ."));
+console.log(`[Gemini] client mode: ${useVertexAi ? "Vertex AI (API key)" : "Gemini Developer API"}`);
 const ai = new GoogleGenAI({
   apiKey: apiKey,
+  ...(useVertexAi ? { vertexai: true } : {}),
   httpOptions: {
     headers: {
       "User-Agent": "aistudio-build",
@@ -1457,14 +1453,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
     cleanGeminiMimeType = "audio/webm";
   }
 
-  const decodedAudio = decodeAudioBase64(audioBytes);
-  if (!decodedAudio.ok) {
-    if (decodedAudio.reason === "too-large") {
-      return res.status(413).json({ error: "حجم ملف الصوت يتجاوز الحد المسموح (50 ميجابايت). يرجى ضغط الملف أو اختيار تسجيل أقصر." });
-    }
-    return res.status(400).json({ error: decodedAudio.reason === "missing" ? "بيانات الصوت مفقودة أو غير صالحة." : "ترميز بيانات الصوت غير صالح. أعد اختيار الملف وحاول مرة أخرى." });
-  }
-  const buffer = decodedAudio.buffer;
+  const buffer = Buffer.from(audioBytes, "base64");
   let ext = "webm";
   if (cleanGeminiMimeType === "audio/mp3") ext = "mp3";
   else if (cleanGeminiMimeType === "audio/wav") ext = "wav";
@@ -1474,6 +1463,10 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
 
   // Step A: Deterministic Audio Hash (Save by Audio Hash check)
   const audioHash = computeAudioHash(buffer);
+  let hasAudioFile = false;
+  if (process.env.STORE_AUDIO !== "false") {
+    hasAudioFile = await saveAudioFile(audioHash, buffer, ext);
+  }
 
   // Probe true audio duration from buffer
   let probedDuration = 0;
@@ -1522,7 +1515,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
 
     let hasUntranscribedInternalGaps = false;
     const cachedVadSegs = Array.isArray(cachedAnalysis.sileroVad?.speechSegments) ? cachedAnalysis.sileroVad.speechSegments : [];
-    const cachedMusicBlocks = cachedVadSegs.filter((s: any) => (Number(s.end) - Number(s.start)) >= 12 && Number(s.confidence || 0) >= 0.78);
+    const cachedMusicBlocks = cachedVadSegs.filter((s: any) => isMusicBlock(s, 0.78));
     if (cachedTurnsList.length > 0 && cachedVadSegs.length > 0) {
       const checkGapSpeech = (gStart: number, gEnd: number) => {
         if (gEnd - gStart < 22) return false;
@@ -1549,7 +1542,13 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
       }
     }
 
+    const isStaleAnalysisVersion = (cachedAnalysis.analysisVersion || "") !== ANALYSIS_VERSION;
+    if (isStaleAnalysisVersion) {
+      console.log(`[AudioCache] Cached analysis for ${audioHash.slice(0, 12)} has version "${cachedAnalysis.analysisVersion || "none"}" (current ${ANALYSIS_VERSION}) → re-analysing.`);
+    }
+
     const hasValidCachedTranscript =
+      !isStaleAnalysisVersion &&
       cachedTurnsList.length > 0 &&
       !isExplicitlyIncomplete &&
       !isTruncated &&
@@ -1762,7 +1761,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
             const vEnd = Number(vs.end) || 0;
             const vDur = vEnd - vStart;
             const vConf = Number(vs.confidence || 0);
-            if (vDur >= 12 && vConf >= 0.55) {
+            if (isMusicBlock(vs, 0.55)) {
               const overlapStart = Math.max(gapStart, vStart);
               const overlapEnd = Math.min(gapEnd, vEnd);
               if (overlapEnd > overlapStart) {
@@ -1916,7 +1915,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
             const matchingMusicBlock = vadSegs.find((vs: any) => {
               const vS = Number(vs.start) || 0;
               const vE = Number(vs.end) || 0;
-              return (vE - vS) >= 15 && Number(vs.confidence || 0) >= 0.80 && Math.abs(vS - hStart) <= 8;
+              return (vE - vS) >= 15 && isMusicBlock(vs, 0.80) && Math.abs(vS - hStart) <= 8;
             });
 
             if (matchingMusicBlock && Array.isArray(cachedAnalysis.transcript)) {
@@ -1990,7 +1989,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
               const ovE = Math.min(hEnd, vE);
               if (ovE > ovS) {
                 activeSec += (ovE - ovS);
-                if (vDur >= 12 && vConf >= 0.55) {
+                if (isMusicBlock(vs, 0.55)) {
                   confirmedMusicSec += (ovE - ovS);
                 }
               }
@@ -2231,7 +2230,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
         const custTurns = (cachedAnalysis.transcript || []).filter((t: any) => String(t.speaker || "").includes("العميل"));
         const custTurnsText = custTurns.map((t: any) => String(t.text || "")).join(" ");
         const activeIllnessConsultationRegex = /(?:(?:حاج[ةه]|دواء?|علاج|شراب|أقراص|اقراص|كبسول|مسكن|خافض)\s*(?:لـ?|عشان|لعلاج)\s*(?:ال)?(?:برد|زكام|رشح|إنفلونزا|انفلونزا|كح[ةه]|سعال|بلغم|سخوني[ةه]|حرار[ةه]|حمى|صداع|إسهال|اسهال|إمساك|امساك|ترجيع|قيء|غثيان|حموض[ةه]|ارتجاع|حرقان|احتقان))|(?:(?:ممكن|عايز[ةه]?|محتاج[ةه]?|ينفع|آخد|اخد|ياخد)\s+[^\n.،؟]*?(?:للبرد|للسخوني[ةه]|للحرار[ةه]|للكح[ةه]|للرشح|للزكام|للإسهال|للاسهال))|(?:(?:عندي|عنده|عندها|سخن|جسمه\s*مهزوز)\s*[^\n.،؟]*?(?:برد|زكام|رشح|إنفلونزا|انفلونزا|كح[ةه]|سخوني[ةه]|حرار[ةه]|دور\s*اللي\s*ماشي))/ui;
-        const hasGenuineIllnessConsultation = activeIllnessConsultationRegex.test(custTurnsText);
+        const hasGenuineIllnessConsultation = activeIllnessConsultationRegex.test(custTurnsText) || detectGenuineIllnessConsultation(cachedAnalysis.transcript || []);
 
         if (cachedAnalysis.medicalConsultationAnalysis?.isMedicalConsultationPresent && !hasGenuineIllnessConsultation) {
           cachedAnalysis.medicalConsultationAnalysis = {
@@ -2256,7 +2255,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
             const spk = String(t.speaker || "");
             return spk.includes("موظف") || spk.includes("زميل") || spk.includes("خدمة العملاء");
           });
-          const symptomTurns = custTurns.filter((t: any) => activeIllnessConsultationRegex.test(String(t.text || "")));
+          const symptomTurns = (() => { const byRegex = custTurns.filter((t: any) => activeIllnessConsultationRegex.test(String(t.text || ""))); return byRegex.length ? byRegex : symptomTurnsOf(custTurns); })();
           const symptomSnip = symptomTurns.map((t: any) => `${t.text} (${t.timeStart || "00:00"})`).join(" | ");
           const stepDefs = [
             { stepKey: "age", stepTitle: "العمر كام؟", standardQuestion: "العمر كام؟", regex: /كام\s*سن[ةه]|السن\s*كام|العمر\s*كام|عمره?\s*كام|سن[هه]\s*كام|عند[هه]\s*كام\s*سن[ةه]/ui },
@@ -2284,7 +2283,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
           const askedTitles = builtSteps.filter(s => s.wasAsked).map(s => s.stepTitle);
           cachedAnalysis.medicalConsultationAnalysis = {
             isMedicalConsultationPresent: true,
-            consultationTopic: "استشارة طبية لعلاج أعراض السخونية ونزلة البرد",
+            consultationTopic: consultationTopicFor(cachedAnalysis.transcript || []),
             customerSymptomSnippet: symptomSnip,
             allStepsCompleted: missingAlerts.length === 0,
             missingStepsCount: missingAlerts.length,
@@ -2303,18 +2302,26 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
       }
 
       console.log(`[AudioCache] Cache hit for audio hash ${audioHash.slice(0, 12)}! Returning verified complete consensus result directly (${cachedAnalysis.transcript?.length || 0} turns).`);
-      return res.json(cachedAnalysis);
+      return res.json(stripPhantomBenchmark(cachedAnalysis, false));
     }
   }
 
   // Step B: Run Silero VAD (Voice Activity Detection)
   let sileroVadResult: any = null;
+  let vadUnavailableReason = "";
   try {
-    console.log("Executing Silero-VAD acoustic voice activity detection...");
-    sileroVadResult = await runSileroVad(buffer);
-    console.log(`[Silero-VAD] Completed: ${sileroVadResult.speechSegments.length} speech segments, speech ratio: ${(sileroVadResult.speechRatio * 100).toFixed(1)}%`);
-  } catch (vadErr) {
-    console.warn("Silero-VAD analysis notice:", vadErr);
+    console.log("Executing energy/ZCR voice activity detection...");
+    const vadRaw = await runSileroVad(buffer);
+    if (vadRaw.available === false) {
+      vadUnavailableReason = vadRaw.unavailableReason || "VAD غير متاح";
+      console.warn(`[VAD] unavailable: ${vadUnavailableReason} — continuing WITHOUT acoustic evidence.`);
+    } else {
+      sileroVadResult = vadRaw;
+      console.log(`[VAD] Completed: ${sileroVadResult.speechSegments.length} speech segments, speech ratio: ${(sileroVadResult.speechRatio * 100).toFixed(1)}%`);
+    }
+  } catch (vadErr: any) {
+    vadUnavailableReason = String(vadErr?.message || vadErr);
+    console.warn("VAD analysis notice:", vadErr);
   }
 
   // 1. Check for QwenCleo-ASR (mohammedaly22/QwenCleo-ASR) specialized Egyptian Arabic library
@@ -2659,7 +2666,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
 
 قوانين صارمة وشاملة لتقييم وتدقيق بروتوكول الاستشارة الطبية (medicalConsultationAnalysis):
 - التحقق الصارم من وجود استشارة طبية في المكالمة:
-  * لا تُعتمد المكالمة كاستشارة طبية (isMedicalConsultationPresent = true) إلا إذا طلب العميل دواءً أو علاجاً لأعراض طبية مرضية معينة وصريحة يعاني منها المريض (مثل: برد، زكام، رشح، إنفلونزا، كحة، سخونية/حرارة، صداع، إسهال، إمساك، قيء/ترجيع، احتقان حلق).
+  * لا تُعتمد المكالمة كاستشارة طبية (isMedicalConsultationPresent = true) إلا إذا طلب العميل دواءً أو علاجاً لأعراض طبية مرضية معينة وصريحة يعاني منها المريض (مثل: برد، زكام، رشح، إنفلونزا، كحة، سخونية/حرارة، صداع، إسهال، إمساك، قيء/ترجيع، احتقان حلق). ويُعدّ وصف العميل لأعراض المريض صراحةً (مثل سخونة وكحة وترجيع) استشارة طبية حتى دون عبارة «دواء لـ…»، متى سأل الزميل أسئلة عن الأعراض.
   * تحذير حاسم وإلزامي (عدم اعتماد سؤال العميلة عن صنف كسؤال استشارة إلا إذا طلبته لأعراض طبية معينة مثل برد):
     - يُمنع منعاً باتاً اعتماد سؤال العميل أو العميلة عن صنف معين (مثل السؤال عن توفر صنف مثل "أوكتا دي 3 دروبز"، أو طلب غيار جروح قيصرية وكحول للسرة مثل "كوردو" وطريقة تطهير الجرح، أو طلب معجون أسنان سيجنال للحساسية، أو توضيح شكل الصنف المطلوب بالاسم مثل "اسبازيولان اللي للمغص اللي بيتحط على اللسان") كسؤال استشارة طبية!
     - لا يُعتمد سؤال العميلة عن صنف كسؤال استشارة طبية إلا إذا طلبته صراحةً لعلاج أعراض طبية مرضية معينة يعاني منها المريض حالياً مثل دور برد أو سخونية أو كحة (مثال: "عايزة حاجة للسخونية" أو "ممكن نوفاسي للبرد عشان جسمه سخن وعنده برد"). فيما عدا ذلك يُضبط isMedicalConsultationPresent = false حتماً.
@@ -2985,7 +2992,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
       return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     };
     const rawMusicSegs = sileroVadResult.speechSegments.filter(
-      (s: any) => (Number(s.end) - Number(s.start)) >= 12 && Number(s.confidence || 0) >= 0.55
+      (s: any) => isMusicBlock(s, 0.55)
     );
     const mergedMusicWins: { start: number; end: number; maxConf: number }[] = [];
     for (const seg of rawMusicSegs) {
@@ -3002,7 +3009,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
     const validMusicWins = mergedMusicWins.filter(w => w.maxConf >= 0.75 || (w.end - w.start) >= 25);
     const totalDurSec = Math.round(sileroVadResult.totalAudioDuration || probedDuration || 0);
     if (validMusicWins.length === 0) {
-      promptText += `\n\n[فحص صوتي مسبق ومؤكد للمكالمة (Silero-VAD Acoustic Pre-Scan)]:
+      promptText += `\n\n[فحص صوتي مسبق ومؤكد للمكالمة (${sileroVadResult.engine} Acoustic Pre-Scan)]:
 - إجمالي مدة المكالمة الصوتية: ${fmtMMSS(totalDurSec)} (${totalDurSec} ثانية).
 - نتيجة فحص موسيقى الانتظار (Hold Music): **لا توجد أي موسيقى انتظار (Hold Music) في هذه المكالمة نهائياً!**
 - توجيه إلزامي قاطع: بما أنه لا توجد أي نغمة موسيقى انتظار في الملف الصوتي، يُمنع منعاً باتاً اختلاق أو تسجيل أي فترة هولد في (holdTimeSummary)، ويجب حتماً ضبط (holdCount = 0، totalHoldSeconds = 0، overallClassification = "بدون هولد"، holdSegments = [])، وتفريغ كامل الحوار المنطوق بين الموظف والعميل من الثانية 00:00 وحتى ${fmtMMSS(totalDurSec)} حرفياً وبالتوقيت الحقيقي دون قفز أو اختصار.\n`;
@@ -3010,7 +3017,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
       const winsDesc = validMusicWins
         .map((w, idx) => `فترة موسيقى ${idx + 1}: من ${fmtMMSS(Math.round(w.start))} إلى ${fmtMMSS(Math.round(w.end))} (${Math.round(w.end - w.start)} ثانية)`)
         .join(" ، ");
-      promptText += `\n\n[فحص صوتي مسبق ومؤكد للمكالمة (Silero-VAD Acoustic Pre-Scan)]:
+      promptText += `\n\n[فحص صوتي مسبق ومؤكد للمكالمة (${sileroVadResult.engine} Acoustic Pre-Scan)]:
 - إجمالي مدة المكالمة الصوتية: ${fmtMMSS(totalDurSec)} (${totalDurSec} ثانية).
 - فترات موسيقى الانتظار المؤكدة صوتياً: ${winsDesc}.
 - توجيه إلزامي قاطع: التزم بهذه التوقيتات الصوتية الحقيقية لفترات الهولد بدقة، وفرّغ كامل الحوار قبل وبعد كل فترة هولد حتى نهاية المكالمة عند ${fmtMMSS(totalDurSec)} دون ضغط التوقيتات أو حذف أي جملة.\n`;
@@ -3160,8 +3167,6 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
     "detectedTraits": ["متعاونة وبشوشة"],
     "score": 8
   },
-  "isBenchmark": true,
-  "benchmarkNotes": "ملاحظات المعايرة القياسية للمكالمة المرجعية",
   "verbalTicsAnalysis": {
     "hasVerbalTics": false,
     "detectedTics": [
@@ -3414,7 +3419,7 @@ app.post("/api/transcribe", async (req, res): Promise<any> => {
     // Helper to calculate how many seconds of non-music human speech exist in [gStart, gEnd]
     const allVadSegsForGap = Array.isArray(sileroVadResult?.speechSegments) ? sileroVadResult.speechSegments : [];
     const confirmedMusicVadBlocks = allVadSegsForGap.filter(
-      (vs: any) => (Number(vs.end) - Number(vs.start)) >= 12 && Number(vs.confidence || 0) >= 0.55
+      (vs: any) => isMusicBlock(vs, 0.55)
     );
     const getNonMusicSpeechInWindow = (wStart: number, wEnd: number): number => {
       if (wEnd <= wStart) return 0;
@@ -3623,16 +3628,24 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
     // ------------------------------------------------------------------------
     // Review 2: Cross-Verification Review
     // ------------------------------------------------------------------------
-    let pipelineReviewMeta = {
+    let pipelineReviewMeta: { reviewCount: number; consensusStatus: string; agreementScore: number; discrepancies: string[]; skippedReason?: string; arbiterUsed?: boolean } = {
       reviewCount: 1,
       consensusStatus: "SINGLE_REVIEW",
       agreementScore: 100,
       discrepancies: [] as string[],
+      skippedReason: processingMode === "transcription_only"
+        ? "وضع «تفريغ فقط»"
+        : continuationIteration > 0
+          ? "المكالمة تطلبت أكثر من تمريرة تفريغ"
+          : detectedTotalSec > (Number(process.env.MULTI_REVIEW_MAX_SECONDS) || 180)
+            ? `مدة المكالمة (${detectedTotalSec} ث) تتجاوز حد المراجعة الثانية (${Number(process.env.MULTI_REVIEW_MAX_SECONDS) || 180} ث)`
+            : undefined,
     };
 
-    if (detectedTotalSec <= 180 && continuationIteration === 0 && processingMode !== "transcription_only") {
+    const MULTI_REVIEW_MAX_SEC = Number(process.env.MULTI_REVIEW_MAX_SECONDS) || 180;
+    if (detectedTotalSec <= MULTI_REVIEW_MAX_SEC && continuationIteration === 0 && processingMode !== "transcription_only") {
     try {
-      if (continuationIteration === 0 && detectedTotalSec <= 180) {
+      {
         console.log("Executing Gemini Review 2 for cross-verification consensus...");
         const response2 = await generateContentWithRetry({
           model: "gemini-2.5-flash",
@@ -3718,6 +3731,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
                   consensusStatus: "ARBITRATION_RESOLVED",
                   agreementScore: comparison.agreementScore,
                   discrepancies: comparison.discrepancies,
+                  arbiterUsed: true,
                 };
                 console.log("[Consensus] Gemini Review 3 arbitration successfully resolved discrepancies!");
               }
@@ -3732,14 +3746,6 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
             }
           }
         }
-      } else {
-        console.log(`[Consensus] Long call (${detectedTotalSec}s, continuation passes=${continuationIteration}): using programmatic deterministic verification directly.`);
-        pipelineReviewMeta = {
-          reviewCount: 2,
-          consensusStatus: "CONSISTENT_PASS",
-          agreementScore: 100,
-          discrepancies: [],
-        };
       }
     } catch (rev2Err) {
       console.warn("Review 2 pass warning, adhering to primary review:", rev2Err);
@@ -4283,7 +4289,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
       const custTurns = (parsedData.transcript || []).filter((t: any) => String(t.speaker || "").includes("العميل"));
       const custTurnsText = custTurns.map((t: any) => String(t.text || "")).join(" ");
       const activeIllnessConsultationRegex = /(?:(?:حاج[ةه]|دواء?|علاج|شراب|أقراص|اقراص|كبسول|مسكن|خافض)\s*(?:لـ?|عشان|لعلاج)\s*(?:ال)?(?:برد|زكام|رشح|إنفلونزا|انفلونزا|كح[ةه]|سعال|بلغم|سخوني[ةه]|حرار[ةه]|حمى|صداع|إسهال|اسهال|إمساك|امساك|ترجيع|قيء|غثيان|حموض[ةه]|ارتجاع|حرقان|احتقان))|(?:(?:ممكن|عايز[ةه]?|محتاج[ةه]?|ينفع|آخد|اخد|ياخد)\s+[^\n.،؟]*?(?:للبرد|للسخوني[ةه]|للحرار[ةه]|للكح[ةه]|للرشح|للزكام|للإسهال|للاسهال))|(?:(?:عندي|عنده|عندها|سخن|جسمه\s*مهزوز)\s*[^\n.،؟]*?(?:برد|زكام|رشح|إنفلونزا|انفلونزا|كح[ةه]|سخوني[ةه]|حرار[ةه]|دور\s*اللي\s*ماشي))/ui;
-      const hasGenuineIllnessConsultation = activeIllnessConsultationRegex.test(custTurnsText);
+      const hasGenuineIllnessConsultation = activeIllnessConsultationRegex.test(custTurnsText) || detectGenuineIllnessConsultation(parsedData.transcript || []);
 
       if (parsedData.medicalConsultationAnalysis?.isMedicalConsultationPresent && !hasGenuineIllnessConsultation) {
         parsedData.medicalConsultationAnalysis = {
@@ -4303,7 +4309,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
             );
         }
       } else if (hasGenuineIllnessConsultation && (!parsedData.medicalConsultationAnalysis?.isMedicalConsultationPresent || !Array.isArray(parsedData.medicalConsultationAnalysis?.steps) || parsedData.medicalConsultationAnalysis.steps.length === 0)) {
-        const symptomTurns = custTurns.filter((t: any) => activeIllnessConsultationRegex.test(String(t.text || "")));
+        const symptomTurns = (() => { const byRegex = custTurns.filter((t: any) => activeIllnessConsultationRegex.test(String(t.text || ""))); return byRegex.length ? byRegex : symptomTurnsOf(custTurns); })();
         const symptomSnip = symptomTurns.map((t: any) => `${t.text} (${t.timeStart || "00:00"})`).join(" | ");
         const stepDefs = [
           { stepKey: "age", stepTitle: "العمر كام؟", standardQuestion: "العمر كام؟", regex: /كام\s*سن[ةه]|السن\s*كام|العمر\s*كام|عمره?\s*كام|سن[هه]\s*كام|عند[هه]\s*كام\s*سن[ةه]/ui },
@@ -4331,7 +4337,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
         const askedTitles = builtSteps.filter(s => s.wasAsked).map(s => s.stepTitle);
         parsedData.medicalConsultationAnalysis = {
           isMedicalConsultationPresent: true,
-          consultationTopic: "استشارة طبية لعلاج أعراض السخونية ونزلة البرد",
+          consultationTopic: consultationTopicFor(parsedData.transcript || []),
           customerSymptomSnippet: symptomSnip,
           allStepsCompleted: missingAlerts.length === 0,
           missingStepsCount: missingAlerts.length,
@@ -4603,7 +4609,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
               const ovE = Math.min(eSec, vE);
               if (ovE > ovS) {
                 activeSec += (ovE - ovS);
-                if (vDur >= 12 && vConf >= 0.55) {
+                if (isMusicBlock(vs, 0.55)) {
                   confirmedMusicSec += (ovE - ovS);
                 }
               }
@@ -4733,7 +4739,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
             const vEnd = Number(vs.end) || 0;
             const vDur = vEnd - vStart;
             const vConf = Number(vs.confidence || 0);
-            if (vDur >= 12 && vConf >= 0.55) {
+            if (isMusicBlock(vs, 0.55)) {
               const overlapStart = Math.max(gapStart, vStart);
               const overlapEnd = Math.min(gapEnd, vEnd);
               if (overlapEnd > overlapStart) {
@@ -5786,7 +5792,7 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
     }
 
     const usedEngineParts = [];
-    if (sileroVadResult) usedEngineParts.push("Silero-VAD v4");
+    if (sileroVadResult) usedEngineParts.push(sileroVadResult.engine || "VAD");
     if (isQwenCleoUsed) usedEngineParts.push("QwenCleo-ASR (العامية المصرية)");
     if (isWhisperApiUsed) usedEngineParts.push("OpenAI Whisper");
     if (isWav2Vec2EmotionUsed) usedEngineParts.push("القياس الصوتي للنبرة والمشاعر");
@@ -5811,6 +5817,10 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
       finalizedResult.sileroVad = sileroVadResult;
     }
     finalizedResult.pipelineReviewMeta = pipelineReviewMeta;
+    stripPhantomBenchmark(finalizedResult, false);
+    finalizedResult.analysisVersion = ANALYSIS_VERSION;
+    finalizedResult.hasAudioFile = hasAudioFile;
+    if (process.env.REDACT_PII === "true") redactTranscript(finalizedResult);
 
     // Assess transcription completeness and coverage ratio
     const parseSecHelper = (t: any): number => {
@@ -5842,31 +5852,46 @@ ${confirmedMusicVadBlocks.length === 0 ? "ملاحظة صوتية مؤكدة: ل
       coverageRatio: effectiveCoverageRatio,
     };
 
-    // Step E: Construct the standardized 15-stage Unified Pipeline Trace
-    finalizedResult.pipelineStages = [
-      { step: 1, name: "audio_input", nameArabic: "استلام وتدقيق مدخلات الصوت", tool: "Express Audio Controller", status: "completed", details: `حجم الملف: ${(buffer.length / 1024).toFixed(1)} KB` },
-      { step: 2, name: "audio_validation", nameArabic: "التحقق من سلامة البايتات وصيغة الصوت", tool: "Audio MIME & Stream Validator", status: "completed", details: `الصيغة: ${cleanGeminiMimeType}` },
-      { step: 3, name: "audio_preprocessing", nameArabic: "المعالجة الأولية واستخراج الإشارات", tool: "FFmpeg PCM 16kHz Converter", status: "completed", details: "تجهيز الترددات وتهيئتها" },
-      { step: 4, name: "voice_activity_detection", nameArabic: "كشف النشاط الصوتي والصمت", tool: "Silero-VAD v4", status: "completed", details: sileroVadResult ? `نسبة الكلام: ${(sileroVadResult.speechRatio * 100).toFixed(1)}%` : "تم التحليل الصوتي" },
-      { step: 5, name: "speaker_processing", nameArabic: "فصل المتحدثين (الزميل vs العميل)", tool: "Acoustic Speaker Diarization", status: "completed", details: "عزل سماعة الكول سنتر عن الهاتف الخارجي" },
-      { step: 6, name: "primary_transcription", nameArabic: "التفريغ الصوتي الحساس مع حظر التخمين", tool: isWhisperApiUsed ? "OpenAI Whisper-1 + Gemini" : (isQwenCleoUsed ? "QwenCleo-ASR + Gemini" : "Gemini 2.5 Flash Acoustic Engine"), status: "completed", details: "تفريغ حرفي مع إدراج [غير مؤكد] للأصوات المشوشة" },
-      { step: 7, name: "transcript_cleaning", nameArabic: "تنظيف النص وتطبيع الأسماء والألقاب", tool: "Egyptian Dialect Normalizer", status: "completed", details: "تطبيع أسماء العملاء المركبة والمفردة (مثل عز الدين)" },
-      { step: 8, name: "transcript_validation", nameArabic: "التحقق من تسلسل التوقيتات والأدوار", tool: "Timeline & Boundary Verifier", status: "completed", details: "تدقيق ترابط وتوقيتات مقاطع المحادثة" },
-      { step: 9, name: "call_analysis", nameArabic: "تحليل سياق المكالمة وسيناريو المحادثة", tool: "Context & Intent Analyzer", status: "completed", details: "تحليل الطلبات بناءً على النص الفعلي فقط" },
-      { step: 10, name: "qa_criteria_evaluation", nameArabic: "تقييم معايير الجودة الـ 15 المعتمدة", tool: "QA Criteria Evaluation Engine", status: "completed", details: "تقييم الترحيب، الاسم، اللقب، الهولد، الاعتذار، وإنهاء المكالمة" },
-      { step: 11, name: "evidence_extraction", nameArabic: "استخراج الأدلة والنصوص والتوقيتات الصريحة", tool: "Evidence Extraction Engine", status: "completed", details: "توثيق التوقيت والنص المقتبس (Snippet) لكل معيار" },
-      { step: 12, name: "independent_verification", nameArabic: "المراجعة المستقلة الثانية (Review 2)", tool: "Gemini Cross-Verification Review 2", status: "completed", details: "تدقيق نقدي مستقل للمراجعة الأولى" },
-      { step: 13, name: "conflict_resolution", nameArabic: "فض النزاع بالدليل الحاسم (Review 3 Arbiter)", tool: "Evidence-Based Arbiter", status: "completed", details: pipelineReviewMeta.consensusStatus === "CONSISTENT_PASS" ? "توافق تام 100% بدون خلافات" : `حسم المحكم بناءً على الدليل المباشر (${pipelineReviewMeta.discrepancies.length} نقاط)` },
-      { step: 14, name: "final_result_validation", nameArabic: "التدقيق والتطهير الهيكلي النهائي", tool: "Pydantic / Zod Master Schema Validator", status: "completed", details: "تطهير الكائنات ومنع أي أخطاء بنية وضبط الحقول" },
-      { step: 15, name: "save_final_result", nameArabic: "الحفظ المفهرس بالبصمة الصوتية", tool: "SHA-256 Audio Hash Storage", status: "completed", details: `تم الحفظ برمز البصمة: ${audioHash.slice(0, 12)}...` },
-    ];
+    // Step E: pipeline trace derived from what actually ran (never hard-coded "completed").
+    const buildTrace = (saved: boolean) => buildPipelineStages({
+      bufferBytes: buffer.length,
+      mime: cleanGeminiMimeType,
+      vad: sileroVadResult ? { engine: sileroVadResult.engine, speechRatio: sileroVadResult.speechRatio, musicRatio: sileroVadResult.musicRatio, neural: Boolean(sileroVadResult.neural) } : null,
+      vadUnavailableReason,
+      whisperUsed: isWhisperApiUsed,
+      qwenUsed: isQwenCleoUsed,
+      emotionUsed: isWav2Vec2EmotionUsed,
+      geminiModel: "2.5-flash",
+      processingMode: String(processingMode || ""),
+      reviewMeta: pipelineReviewMeta,
+      validationValid: validationReport.isValid,
+      audioHash,
+      saved,
+    });
+    finalizedResult.pipelineStages = buildTrace(true);
 
     // Step D: Save by Audio Hash (Cache & Persistence) whenever transcript has turns
+    let savedOk = false;
     if (Array.isArray(finalizedResult.transcript) && finalizedResult.transcript.length > 0) {
       try {
         await saveAnalysisByHash(audioHash, finalizedResult);
+        savedOk = true;
       } catch (saveErr) {
         console.warn("Failed to save audio hash cache:", saveErr);
+      }
+    }
+    if (!savedOk) finalizedResult.pipelineStages = buildTrace(false);
+
+    // Step F: optional quality alert (Slack/Teams-compatible webhook)
+    const alertUrl = process.env.ALERT_WEBHOOK_URL;
+    if (alertUrl && savedOk && processingMode !== "transcription_only") {
+      try {
+        const record: any = buildAnalyzedCallRecord(finalizedResult);
+        const score = Number(record?.overallScore);
+        const decision = evaluateAlert(finalizedResult, score, Number(process.env.ALERT_SCORE_THRESHOLD) || 70);
+        if (decision.shouldAlert) void sendAlertWebhook(alertUrl, buildAlertPayload(finalizedResult, score, decision.reasons));
+      } catch (alertErr) {
+        console.warn("Alert evaluation skipped:", alertErr);
       }
     }
 
@@ -6416,8 +6441,7 @@ app.get("/api/hindsight/memories", (req, res) => {
     const stats = hindsightEngine.getStats();
     res.json({ memories, stats });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
@@ -6426,16 +6450,19 @@ app.get("/api/hindsight/stats", (req, res) => {
     const stats = hindsightEngine.getStats();
     res.json(stats);
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
-app.post("/api/hindsight/retain", async (req, res): Promise<any> => {
+app.post("/api/hindsight/retain", requireAdmin, async (req, res): Promise<any> => {
   try {
     const { category, title, content, entities, tags, importance, source } = req.body;
     if (!title || !content || !category) {
       return res.status(400).json({ error: "العنوان والمحتوى وتصنيف الذاكرة متطلبات إلزامية لحفظ الذاكرة." });
+    }
+    const gov = validateMemoryInput({ title, content, category, importance: importance || "high", scope: req.body.scope });
+    if (!gov.ok) {
+      return res.status(422).json({ error: "رُفضت الذاكرة وفق ضوابط الحوكمة: " + gov.reasons.join(" • "), reasons: gov.reasons });
     }
     const saved = await hindsightEngine.retain({
       category,
@@ -6448,8 +6475,7 @@ app.post("/api/hindsight/retain", async (req, res): Promise<any> => {
     });
     res.json({ success: true, memory: saved });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
@@ -6462,28 +6488,25 @@ app.post("/api/hindsight/recall", async (req, res): Promise<any> => {
     const result = await hindsightEngine.recall(query, { limit, category });
     res.json(result);
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
-app.delete("/api/hindsight/memories/:id", (req, res) => {
+app.delete("/api/hindsight/memories/:id", requireAdmin, (req, res) => {
   try {
     const deleted = hindsightEngine.deleteMemory(req.params.id);
     res.json({ success: deleted });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
-app.post("/api/hindsight/reset", (req, res) => {
+app.post("/api/hindsight/reset", requireAdmin, (req, res) => {
   try {
     hindsightEngine.resetToDefaults();
     res.json({ success: true, stats: hindsightEngine.getStats() });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
@@ -6494,11 +6517,10 @@ app.post("/api/hindsight/reset", (req, res) => {
 app.get("/api/analyzed-calls", async (_req, res) => {
   try {
     const cachedItems = await getAllCachedAnalyses();
-    const calls = cachedItems.map((item) => buildAnalyzedCallRecord(item));
+    const calls = cachedItems.map((item) => buildAnalyzedCallRecord(stripPhantomBenchmark({ ...item }, !item.audioHash)));
     res.json({ calls });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
@@ -6524,7 +6546,7 @@ app.post("/api/analyzed-calls", async (req, res): Promise<any> => {
           continue;
         }
         await saveAnalysisByHash(cleanHash, {
-          ...fullRes,
+          ...stripPhantomBenchmark({ ...fullRes }, false),
           agentName: entry?.agentName || fullRes.agentName,
           audioHash: cleanHash,
           savedAt: entry?.savedAt || fullRes.savedAt || new Date().toISOString(),
@@ -6533,11 +6555,10 @@ app.post("/api/analyzed-calls", async (req, res): Promise<any> => {
     }
 
     const cachedItems = await getAllCachedAnalyses();
-    const allCalls = cachedItems.map((item) => buildAnalyzedCallRecord(item));
+    const allCalls = cachedItems.map((item) => buildAnalyzedCallRecord(stripPhantomBenchmark({ ...item }, !item.audioHash)));
     res.json({ success: true, calls: allCalls });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
@@ -6547,28 +6568,25 @@ app.patch("/api/analyzed-calls/:id", async (req, res) => {
     const updated = await updateCachedAnalysisMetadata(req.params.id, { agentName });
     res.json({ success: updated });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
-app.delete("/api/analyzed-calls/:id", async (req, res) => {
+app.delete("/api/analyzed-calls/:id", requireAdmin, async (req, res) => {
   try {
     const deleted = await deleteAudioCacheByHash(req.params.id);
     res.json({ success: deleted });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
-app.delete("/api/analyzed-calls", async (_req, res) => {
+app.delete("/api/analyzed-calls", requireAdmin, async (_req, res) => {
   try {
     const deletedCount = await deleteAllAudioCache();
     res.json({ success: true, deletedCount });
   } catch (err: any) {
-    console.error("Internal API operation failed:", err);
-    res.status(500).json({ error: "حدث خطأ داخلي أثناء معالجة الطلب." });
+    res.status(500).json({ error: err?.message || String(err) });
   }
 });
 
@@ -6598,3 +6616,15 @@ async function startServer() {
 }
 
 startServer();
+
+// Warm up the VAD model at start-up and say clearly which engine is active
+describeVadEngine().then((v) =>
+  console.log(v.neural ? `[VAD] ${v.engine} ready.` : `[VAD] ${v.engine} — neural model not active (${v.reason}). Install onnxruntime-node and keep ./models/silero_vad.onnx.`)
+).catch(() => {});
+
+// Optional retention policy for stored recordings
+if (Number(process.env.AUDIO_RETENTION_DAYS) > 0) {
+  pruneAudioFiles(Number(process.env.AUDIO_RETENTION_DAYS))
+    .then((n) => n && console.log(`[Retention] removed ${n} recordings older than ${process.env.AUDIO_RETENTION_DAYS} days`))
+    .catch(() => {});
+}

@@ -251,7 +251,7 @@ export const BenchmarkTabView: React.FC<BenchmarkTabViewProps> = ({
                   {currentLang === "en" ? "Overall Call Accuracy" : "الدرجة الكلية للمكالمة"}
                 </span>
                 <div className="text-2xl font-black text-amber-600 dark:text-amber-400">
-                  {benchmarkData.evaluation?.overallScore || 86}%
+                  {typeof benchmarkData.evaluation?.overallScore === "number" ? `${benchmarkData.evaluation.overallScore}%` : "—"}
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 font-bold">
                   {currentLang === "en" ? "Passed (Very Good)" : "ناجح (جيد جداً)"}

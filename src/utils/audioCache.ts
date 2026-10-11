@@ -204,3 +204,52 @@ export async function deleteAllAudioCache(): Promise<number> {
   }
   return deletedCount;
 }
+
+// ---------------------------------------------------------------------------
+// Original call recordings (enables click-to-seek playback from stored reports)
+// ---------------------------------------------------------------------------
+const AUDIO_DIR = path.join(process.cwd(), "data", "audio_files");
+const AUDIO_EXTS = ["mp3", "wav", "m4a", "ogg", "flac", "webm"];
+
+export async function saveAudioFile(hashOrId: string, buffer: Buffer, ext: string): Promise<boolean> {
+  const clean = normalizeAudioHash(hashOrId);
+  const safeExt = AUDIO_EXTS.includes(ext) ? ext : "webm";
+  if (!clean) return false;
+  try {
+    await fs.promises.mkdir(AUDIO_DIR, { recursive: true });
+    const target = path.join(AUDIO_DIR, `${clean}.${safeExt}`);
+    if (fs.existsSync(target)) return true;
+    const tmp = `${target}.tmp.${process.pid}.${Date.now()}`;
+    await fs.promises.writeFile(tmp, buffer);
+    await fs.promises.rename(tmp, target);
+    return true;
+  } catch (err) {
+    console.warn(`Failed to store audio file for ${clean}:`, err);
+    return false;
+  }
+}
+
+export function findAudioFile(hashOrId: string): string | null {
+  const clean = normalizeAudioHash(hashOrId);
+  if (!clean) return null;
+  for (const e of AUDIO_EXTS) {
+    const p = path.join(AUDIO_DIR, `${clean}.${e}`);
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+/** Deletes recordings older than `days` (privacy/retention policy). Returns the number removed. */
+export async function pruneAudioFiles(days: number): Promise<number> {
+  if (!(days > 0) || !fs.existsSync(AUDIO_DIR)) return 0;
+  const cutoff = Date.now() - days * 86400000;
+  let removed = 0;
+  for (const f of await fs.promises.readdir(AUDIO_DIR)) {
+    const p = path.join(AUDIO_DIR, f);
+    try {
+      const st = await fs.promises.stat(p);
+      if (st.isFile() && st.mtimeMs < cutoff) { await fs.promises.unlink(p); removed++; }
+    } catch {}
+  }
+  return removed;
+}

@@ -37,7 +37,7 @@ export function exportEvaluationToExcel(
       ["تقرير تقييم جودة المكالمة الصيدلانية (QA Call Evaluation Report)"],
       ["تاريخ التقرير:", new Date().toLocaleString("ar-EG")],
       ["نوع المكالمة:", result.isBenchmark ? "مكالمة معيارية مرجعية (Benchmark)" : "مكالمة اعتيادية"],
-      ["محرك التفريغ الصوتي:", result._engineInfo?.engineName || "QwenCleo-ASR + Whisper"],
+      ["محرك التفريغ الصوتي:", result._engineInfo?.engineName || "غير محدد"],
       [""],
       ["معيار التقييم (KPI)", "النتيجة / الحالة", "التقييم الفني والملاحظات", "الدرجة / الإحصائية"]
     ];

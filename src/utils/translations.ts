@@ -8,6 +8,7 @@ export interface Translations {
     transcription: string;
     invoice_audit: string;
     reports: string;
+    analytics: string;
     memory: string;
     benchmark: string;
     settings: string;
@@ -191,6 +192,7 @@ export const translations: Record<Language, Translations> = {
       transcription: "تفريغ المكالمات",
       invoice_audit: "تدقيق الفواتير",
       reports: "التقارير",
+      analytics: "تحليلات الأداء",
       memory: "ذاكرة النظام (Hindsight)",
       benchmark: "المكالمة المعيارية",
       settings: "الإعدادات",
@@ -277,7 +279,7 @@ export const translations: Record<Language, Translations> = {
       benchmarkToggleInactive: "اعتماد كـ Benchmark",
       newCall: "تحليل مكالمة جديدة",
       excelHubTitle: "استخراج تقرير التقييم على صيغة إكسيل (Excel Export)",
-      excelHubBadge: "5 أوراق عمل (.XLSX)",
+      excelHubBadge: "6 أوراق عمل (.XLSX)",
       excelHubDesc: "ملف إكسيل قياسي متكامل يشمل: ملخص درجات الـ KPI، جداول فترات الصمت والهولد، بروتوكول الاستشارة الطبية وتدقيق Medscape، وتقرير تدقيق ريسيت الفاتورة وموافقة العميل.",
       directDownload: "تحميل مباشر (.xlsx)",
       inspectSheets: "تبويب ومعاينة الأوراق",
@@ -308,7 +310,7 @@ export const translations: Record<Language, Translations> = {
       p3Title: "3. تدقيق ريسيت الفاتورة (Tesseract OCR)",
       p3Desc: "قراءة ضوئية فورية ومطابقة الأصناف المكتوبة في الفاتورة مع طلب العميل في المكالمة، والتأكد الصارم من استئذان العميل وموافقته الصريحة على أي بديل.",
       p4Title: "4. تصدير تقارير الإكسيل الشاملة",
-      p4Desc: "توليد ملفات إكسيل احترافية تضم 5 أوراق عمل (.xlsx) لكافة مؤشرات الأداء، الصمت، الهولد، الاستشارات، وسجل التفريغ الكامل.",
+      p4Desc: "توليد ملفات إكسيل احترافية تضم 6 أوراق عمل (.xlsx) لكافة مؤشرات الأداء، الصمت، الهولد، الاستشارات، وسجل التفريغ الكامل.",
       standardsTitle: "المعايير المعتمدة في النظام:",
       std1: "فصل المتحدثين (Diarization)",
       std2: "استبعاد الصمت الطبيعي (≤ 10 ثوانٍ)",
@@ -372,6 +374,7 @@ export const translations: Record<Language, Translations> = {
       transcription: "Transcription",
       invoice_audit: "Invoice Audit",
       reports: "QA Reports",
+      analytics: "Analytics",
       memory: "System Memory (Hindsight)",
       benchmark: "Benchmark Call",
       settings: "Settings",

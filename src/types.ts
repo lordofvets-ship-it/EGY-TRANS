@@ -96,9 +96,9 @@ export interface EmpathyAnalysis {
 }
 
 export interface FurtherAssistanceAnalysis {
+  assistanceTimestamps?: string[];
+  assistanceCount?: number;
   isAssistanceOffered: boolean; // هل عرض الزميل خدمات أخرى قبل الانهاء (مثل أي مساعدة أخرى أو إضافة شيء آخر)
-  assistanceCount?: number; // عدد مرات عرض المساعدة المكتشفة
-  assistanceTimestamps?: string[]; // توقيتات العبارات المكتشفة
   detectedAssistancePhrases: string[]; // عبارات عرض المساعدة المكتشفة
   assistanceTextSnippet: string; // نص جملة عرض المساعدة الإضافية الفعلي
   evaluation: string; // تقييم عرض الخدمات الأخرى قبل الإنهاء (مثلاً: "تم عرض خدمات أخرى" أو "لم يتم عرض خدمات أخرى")
@@ -515,7 +515,11 @@ export interface HindsightBankStats {
 }
 
 export interface TranscriptionResponse {
-  customerName?: string; // الاسم المستخرج من نداء الموظف للعميل عند وجود دليل
+  analysisVersion?: string;
+  hasAudioFile?: boolean;
+  fileName?: string;
+  customerName?: string;
+  evaluation?: any;
   agentName?: string; // اسم الزميل / الصيدلي
   transcript: TranscriptItem[]; // تفريغ نص المكالمة
   recalledHindsightMemories?: HindsightMemoryEntry[]; // الذكريات والتوجيهات المسترجعة عبر Hindsight لهذه المكالمة
@@ -543,7 +547,12 @@ export interface TranscriptionResponse {
   cacheHit?: boolean; // هل تم استرجاع النتيجة الفورية من كاش البصمة الصوتية
   sileroVad?: {
     engine: string;
-    speechSegments: { start: number; end: number; confidence: number }[];
+    available?: boolean;
+    neural?: boolean;
+    speechSegments: { start: number; end: number; confidence: number; kind?: "speech" | "music" }[];
+    humanSpeechSegments?: { start: number; end: number; confidence: number; kind?: "speech" | "music" }[];
+    musicSegments?: { start: number; end: number; confidence: number; kind?: "speech" | "music" }[];
+    musicRatio?: number;
     silenceSegments: any[];
     speechRatio: number;
     totalAudioDuration: number;
@@ -555,6 +564,8 @@ export interface TranscriptionResponse {
     consensusStatus: string;
     agreementScore: number;
     discrepancies: string[];
+    skippedReason?: string;
+    arbiterUsed?: boolean;
   };
   transcriptionAudit?: {
     isTranscriptComplete: boolean;
@@ -577,7 +588,7 @@ export interface PipelineStageInfo {
   name: string;
   nameArabic: string;
   tool: string;
-  status: "completed" | "in_progress" | "skipped";
+  status: "completed" | "in_progress" | "skipped" | "failed";
   durationMs?: number;
   details?: string;
 }

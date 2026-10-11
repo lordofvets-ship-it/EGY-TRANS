@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckCircle2, ShieldCheck, Cpu, ArrowLeft, X, Layers, Activity, Sparkles, Hash } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Cpu, X, Layers, Sparkles, Hash, MinusCircle, XCircle, Clock } from "lucide-react";
 import { PipelineStageInfo, TranscriptionResponse } from "../types";
 
 interface PipelineTraceModalProps {
@@ -9,23 +9,12 @@ interface PipelineTraceModalProps {
   language?: "ar" | "en";
 }
 
-const DEFAULT_STAGES: PipelineStageInfo[] = [
-  { step: 1, name: "audio_input", nameArabic: "استلام وتدقيق مدخلات الصوت", tool: "Express Audio Controller", status: "completed", details: "فحص البايتات وحجم الطلب" },
-  { step: 2, name: "audio_validation", nameArabic: "التحقق من سلامة البايتات وصيغة الصوت", tool: "MIME & Audio Validator", status: "completed", details: "تأكيد صيغة الصوت المناسبة" },
-  { step: 3, name: "audio_preprocessing", nameArabic: "المعالجة الأولية واستخراج الإشارات", tool: "FFmpeg PCM 16kHz Converter", status: "completed", details: "عزل الترددات وتهيئتها للتحليل" },
-  { step: 4, name: "voice_activity_detection", nameArabic: "كشف النشاط الصوتي وفترات الصمت", tool: "Silero-VAD v4", status: "completed", details: "احتساب نسب الكلام والصمت الدقيق" },
-  { step: 5, name: "speaker_processing", nameArabic: "فصل المتحدثين (الزميل vs العميل)", tool: "Acoustic Speaker Diarization", status: "completed", details: "عزل سماعة الكول سنتر عن هاتف العميل" },
-  { step: 6, name: "primary_transcription", nameArabic: "التفريغ الصوتي الحساس مع حظر التخمين", tool: "Acoustic Transcription Engine", status: "completed", details: "تفريغ حرفي مطابق مع حظر التخمين للكلمات غير الواضحة" },
-  { step: 7, name: "transcript_cleaning", nameArabic: "تنظيف النص وتطبيع الأسماء والألقاب", tool: "Egyptian Dialect Normalizer", status: "completed", details: "تطبيع أسماء العملاء المركبة (عز الدين) وحذف الضوضاء" },
-  { step: 8, name: "transcript_validation", nameArabic: "التحقق من تسلسل التوقيتات والأدوار", tool: "Timeline & Boundary Verifier", status: "completed", details: "مطابقة التوقيتات واستبعاد القفزات غير المنطقية" },
-  { step: 9, name: "call_analysis", nameArabic: "تحليل سياق المكالمة وسيناريو المحادثة", tool: "Context & Intent Analyzer", status: "completed", details: "فهم طلب العميل واستجابة الزميل بدون افتراض نوايا" },
-  { step: 10, name: "qa_criteria_evaluation", nameArabic: "تقييم معايير الجودة الـ 15 المعتمدة", tool: "QA Criteria Evaluation Engine", status: "completed", details: "تقييم الترحيب، الاسم، اللقب، الهولد، الاعتذار، وإنهاء المكالمة" },
-  { step: 11, name: "evidence_extraction", nameArabic: "استخراج الأدلة والنصوص والتوقيتات الصريحة", tool: "Evidence Extraction Engine", status: "completed", details: "توثيق التوقيت والنص المقتبس الصريح لكل معيار" },
-  { step: 12, name: "independent_verification", nameArabic: "المراجعة المستقلة الثانية (Review 2)", tool: "Gemini Cross-Verification Review 2", status: "completed", details: "مراجعة نقدية مستقلة تبحث عن الأخطاء والفروقات" },
-  { step: 13, name: "conflict_resolution", nameArabic: "فض النزاع بالدليل الصوتي (Review 3 Arbiter)", tool: "Evidence-Based Arbiter", status: "completed", details: "حسم الاختلافات بناءً على الدليل المباشر" },
-  { step: 14, name: "final_result_validation", nameArabic: "التدقيق والتطهير الهيكلي النهائي", tool: "Pydantic / Zod Master Schema Validator", status: "completed", details: "تطهير الكائنات ومنع أخطاء البنية وضبط الحدود" },
-  { step: 15, name: "save_final_result", nameArabic: "الحفظ المفهرس بالبصمة الصوتية", tool: "SHA-256 Audio Hash Storage", status: "completed", details: "أرشفة النتيجة ببصمة فريدة للاسترجاع الفوري" },
-];
+const STATUS_UI: Record<string, { label: string; cls: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  completed: { label: "مكتمل", cls: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50", Icon: CheckCircle2 },
+  skipped: { label: "تم تخطّيها", cls: "bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700", Icon: MinusCircle },
+  failed: { label: "فشلت", cls: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 border-rose-200 dark:border-rose-800/50", Icon: XCircle },
+  in_progress: { label: "قيد التنفيذ", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/50", Icon: Clock },
+};
 
 export const PipelineTraceModal: React.FC<PipelineTraceModalProps> = ({
   isOpen,
@@ -35,9 +24,13 @@ export const PipelineTraceModal: React.FC<PipelineTraceModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const stages: PipelineStageInfo[] = result?.pipelineStages && result.pipelineStages.length > 0
-    ? result.pipelineStages
-    : DEFAULT_STAGES;
+  // Only the trace recorded for this very analysis is shown — no invented default stages.
+  const stages: PipelineStageInfo[] = result?.pipelineStages ?? [];
+  const counts = {
+    completed: stages.filter((s) => s.status === "completed").length,
+    skipped: stages.filter((s) => s.status === "skipped").length,
+    failed: stages.filter((s) => s.status === "failed").length,
+  };
 
   const reviewMeta = result?.pipelineReviewMeta;
   const audioHash = result?.audioHash;
@@ -98,13 +91,20 @@ export const PipelineTraceModal: React.FC<PipelineTraceModalProps> = ({
               </span>
             )}
           </div>
-          <span className="text-stone-500 dark:text-stone-400 font-medium">
-            جميع المراحل استوفت معايير الدقة والاتساق
+          <span className="text-stone-500 dark:text-stone-400 font-medium" data-testid="trace-summary">
+            {stages.length > 0
+              ? `${counts.completed} مرحلة نُفّذت • ${counts.skipped} تم تخطّيها • ${counts.failed} فشلت`
+              : "لا يوجد مسار مسجّل"}
           </span>
         </div>
 
         {/* Pipeline Stages List */}
         <div className="p-5 overflow-y-auto space-y-3.5 flex-1">
+          {stages.length === 0 && (
+            <div className="p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 text-xs text-amber-800 dark:text-amber-300" data-testid="trace-empty">
+              هذه المكالمة حُلّلت بإصدار سابق ولا تحمل مساراً فعلياً مسجّلاً. أعد رفع نفس التسجيل لإنتاج مسار دقيق.
+            </div>
+          )}
           {stages.map((st) => (
             <div
               key={st.step}
@@ -132,10 +132,15 @@ export const PipelineTraceModal: React.FC<PipelineTraceModalProps> = ({
                       <Cpu className="w-3 h-3 text-[#C25E38]" />
                       {st.tool}
                     </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50">
-                      <CheckCircle2 className="w-3 h-3" />
-                      مكتمل بنجاح
-                    </span>
+                    {(() => {
+                      const ui = STATUS_UI[st.status] || STATUS_UI.completed;
+                      return (
+                        <span data-testid={`stage-status-${st.step}`} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${ui.cls}`}>
+                          <ui.Icon className="w-3 h-3" />
+                          {ui.label}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </div>
 

@@ -104,7 +104,8 @@ export const AgentScientificKnowledgeSchema = z.object({
   triggerReasonArabic: z.string().default(""),
   // Deep sanitization: convert any objects in medicationsMentioned to strings
   medicationsMentioned: z.array(z.any()).transform((arr) => arr.map(cleanStringOrObject)).default([]),
-  overallScientificScore: z.number().min(0).max(100).default(80),
+  // Scale is 0-10. No invented default: a missing score stays undefined and the UI shows "—".
+  overallScientificScore: z.number().optional().transform((v) => (v === undefined ? undefined : v > 10 && v <= 100 ? v / 10 : Math.min(10, Math.max(0, v)))),
   medscapeAuditSummary: z.string().default(""),
   activeIngredientsAudit: z.array(z.any()).default([]),
   drugInteractionsAudit: z.array(z.any()).default([]),
@@ -141,10 +142,11 @@ export const ReceiptDeliveryFeeAuditSchema = z.object({
  */
 export const QACallAnalysisMasterSchema = z.object({
   callSummary: z.string().default(""),
-  agentName: z.string().default("موظف خدمة العملاء"),
+  // No invented agent name: when empty, the record builder searches the transcript for the spoken name.
+  agentName: z.string().default(""),
   customerName: z.string().default("العميل"),
-  sentiment: z.string().default("positive"),
-  confidenceScore: z.number().min(0).max(100).default(90),
+  sentiment: z.string().default("neutral"),
+  confidenceScore: z.number().min(0).max(100).optional(),
   transcript: z.array(TranscriptSegmentSchema).default([]),
   greetingAnalysis: GreetingAnalysisSchema.default({} as any),
   customerNameAnalysis: CustomerNameAnalysisSchema.default({} as any),
@@ -171,7 +173,7 @@ export const QACallAnalysisMasterSchema = z.object({
   agentSilenceSummary: z.any().default({}),
   receiptAudit: z.any().optional(),
   complianceAlerts: z.array(z.any()).transform((arr) => arr.map(cleanStringOrObject)).default([]),
-  totalScore: z.number().min(0).max(100).default(90),
+  totalScore: z.number().min(0).max(100).optional(),
 }).passthrough(); // allows custom flags like audioHash, pipelineReviewMeta, etc.
 
 export interface ValidationReport {

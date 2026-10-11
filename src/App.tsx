@@ -59,7 +59,10 @@ import { ReceiptAuditModal } from "./components/ReceiptAuditModal";
 import { ExcelExportModal } from "./components/ExcelExportModal";
 import { exportEvaluationToExcel } from "./utils/exportToExcel";
 import { NavigationTabBar, NavigationTab } from "./components/NavigationTabBar";
-import { NewTabPlaceholder } from "./components/NewTabPlaceholder";
+import { AnalyticsTabView } from "./components/AnalyticsTabView";
+import { BatchUploadPanel } from "./components/BatchUploadPanel";
+import { HindsightMemoryView } from "./components/HindsightMemoryView";
+import { audioUrl as serverAudioUrl } from "./utils/authClient";
 import { InvoiceAuditTabView } from "./components/InvoiceAuditTabView";
 import { QAReportsTabView, ANALYZED_CALLS_STORAGE_KEY, USER_DELETED_CALL_IDS_KEY } from "./components/QAReportsTabView";
 import { buildAnalyzedCallRecord, getDeterministicCallId, sanitizeCallResultForHoldAndEcho } from "./utils/callRecordBuilder";
@@ -253,8 +256,11 @@ export default function App() {
       }
     };
     syncCalls();
+    const onCallsChanged = () => { syncCalls(); };
+    window.addEventListener("qa-calls-changed", onCallsChanged);
     return () => {
       isMounted = false;
+      window.removeEventListener("qa-calls-changed", onCallsChanged);
     };
   }, []);
 
@@ -556,12 +562,12 @@ export default function App() {
 
   // Egypt Arabic Dialect call center status messages for visual feedback
   const progressSteps = language === "en" ? [
-    "Examining audio file and initializing high-sensitivity QwenCleo-ASR & Whisper engines...",
+    "Examining the audio file and preparing the transcription & analysis engines...",
     "Scanning acoustic frequencies to capture subtle confirmations and quiet speech...",
     "Executing speaker diarization to strictly distinguish agent and customer audio...",
     "Auditing greeting, empathy, hold protocol, agent silence, and verbal fillers..."
   ] : [
-    "جاري فحص الملف وتفعيل معالج QwenCleo-ASR و Whisper عالي الحساسية للعامية المصرية...",
+    "جاري فحص الملف وتجهيز محركات التفريغ والتحليل للعامية المصرية...",
     "جاري الإنصات للترددات الخافتة واستخراج أدق الأصوات وردود التأكيد المكتومة...",
     "جاري التفرقة الصوتية التامة (Speaker Diarization) بين صوت العميل والموظف...",
     "جاري تدقيق الترحيب، التعاطف، الهولد، صمت الموظف، واللازمات اللفظية..."
@@ -836,6 +842,23 @@ export default function App() {
     setTimeout(() => setIsCopiedTranscript(false), 2500);
   };
 
+  // ---- Synced audio playback: local object URL for fresh uploads, stored recording for saved reports ----
+  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
+  const [playTime, setPlayTime] = useState(0);
+  const playbackUrl: string | null = audioUrl || (result?.hasAudioFile && result?.audioHash ? serverAudioUrl(result.audioHash) : null);
+  const clockToSec = (t?: string): number => {
+    const p = String(t || "0:00").split(":").map((x) => Number(x) || 0);
+    return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p.length === 2 ? p[0] * 60 + p[1] : p[0] || 0;
+  };
+  const seekAudio = (t?: string) => {
+    const el = audioPlayerRef.current;
+    if (!el) return;
+    el.currentTime = clockToSec(t);
+    el.play().catch(() => {});
+  };
+  const isActiveSegment = (s: { timeStart?: string; timeEnd?: string }) =>
+    playTime > 0 && playTime >= clockToSec(s.timeStart) && playTime < Math.max(clockToSec(s.timeEnd), clockToSec(s.timeStart) + 1);
+
   const filteredTranscript = (Array.isArray(result?.transcript) ? result.transcript : []).filter((item) => {
     const isSilence = item.speaker.includes("صمت") || item.speaker.includes("فترة صمت الموظف") || item.speaker.includes("سكوت");
     // Ignore and do not show any silence segment that does not exceed 10 seconds (duration <= 10)
@@ -877,9 +900,6 @@ export default function App() {
         onToggleSidebar={toggleSidebar}
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
-        hasResult={Boolean(result)}
-        onOpenReceiptModal={() => setIsReceiptModalOpen(true)}
-        onOpenExcelModal={() => setIsExcelModalOpen(true)}
         onUploadInvoiceClick={() => {
           receiptFileInputRef.current?.click();
         }}
@@ -1077,6 +1097,22 @@ export default function App() {
           />
         )}
 
+        {activeTab === "analytics" && (
+          <AnalyticsTabView
+            calls={analyzedCalls}
+            language={language}
+            onBackToHome={() => setActiveTab("home")}
+            onGoToTranscription={() => setActiveTab("transcription")}
+          />
+        )}
+
+        {activeTab === "memory" && (
+          <HindsightMemoryView
+            language={language}
+            onBackToHome={() => setActiveTab("home")}
+          />
+        )}
+
         {activeTab === "about" && (
           <AboutTabView
             onBackToHome={() => setActiveTab("home")}
@@ -1240,6 +1276,12 @@ export default function App() {
         )}
 
         {/* VIEW 2: TRANSCRIPTION VIEW (تفريغ وتحليل المكالمات الصوتية) */}
+        {activeTab === "transcription" && !result && !isLoading && (
+          <div className="max-w-4xl mx-auto mb-6">
+            <BatchUploadPanel processingMode={processingMode} language={language} />
+          </div>
+        )}
+
         {activeTab === "transcription" && (
           <AnimatePresence mode="wait">
             {!result && !isLoading && (
@@ -1513,7 +1555,7 @@ export default function App() {
                         استخراج تقرير التقييم على صيغة إكسيل (Excel Export)
                       </h3>
                       <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30 font-bold font-mono">
-                        5 أوراق عمل (.XLSX)
+                        6 أوراق عمل (.XLSX)
                       </span>
                     </div>
                     <p className="text-xs text-stone-600 dark:text-neutral-300 leading-relaxed font-sans">
@@ -3198,7 +3240,7 @@ export default function App() {
                       <div className="px-3.5 py-1.5 bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 rounded-xl flex items-center gap-2">
                         <span className="text-xs text-cyan-800 dark:text-cyan-300 font-medium">درجة المعرفة العلمية:</span>
                         <span className="text-base font-black text-cyan-700 dark:text-cyan-400 font-mono">
-                          {result.agentScientificKnowledge.overallScientificScore || 0} / 10
+                          {result.agentScientificKnowledge.overallScientificScore ?? "—"} / 10
                         </span>
                       </div>
 
@@ -4543,6 +4585,22 @@ export default function App() {
                 </div>
               </div>
 
+              {playbackUrl && (
+                <div className="sticky top-16 z-10 p-3 rounded-2xl bg-white/95 dark:bg-[#1C1A18]/95 backdrop-blur border border-[#EAE3D9] dark:border-stone-800 shadow-xs space-y-1.5" data-testid="synced-player">
+                  <audio
+                    ref={audioPlayerRef}
+                    src={playbackUrl}
+                    controls
+                    preload="metadata"
+                    onTimeUpdate={(e) => setPlayTime(Math.floor(e.currentTarget.currentTime * 2) / 2)}
+                    className="w-full h-10"
+                  />
+                  <p className="text-[11px] text-stone-500 dark:text-neutral-400">
+                    {language === "en" ? "Click any segment's time to jump to that moment in the recording." : "اضغط على توقيت أي مقطع للانتقال إلى لحظته في التسجيل."}
+                  </p>
+                </div>
+              )}
+
               {/* Chat Timeline list */}
               <div className="space-y-3.5">
                 {filteredTranscript && filteredTranscript.length > 0 ? (
@@ -4556,7 +4614,7 @@ export default function App() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.03 }}
-                        className={`p-4 rounded-2xl border flex flex-col gap-2.5 transition-all shadow-2xs ${
+                        className={`p-4 rounded-2xl border flex flex-col gap-2.5 transition-all shadow-2xs ${playbackUrl && isActiveSegment(segment) ? "ring-2 ring-[#C25E38]/70 " : ""}${
                           isSilence 
                             ? "bg-rose-50/70 dark:bg-rose-950/20 border-rose-200/80 dark:border-rose-900/30"
                             : isAgent 
@@ -4587,7 +4645,16 @@ export default function App() {
                           {/* Timestamps */}
                           <div className="flex items-center gap-2 text-stone-500 dark:text-neutral-400 text-xs font-mono font-medium">
                             <Clock className="w-3.5 h-3.5" />
-                            <span>{segment.timeStart} ← {segment.timeEnd}</span>
+                            <button
+                              type="button"
+                              onClick={() => seekAudio(segment.timeStart)}
+                              disabled={!playbackUrl}
+                              title={playbackUrl ? (language === "en" ? "Play from here" : "تشغيل من هنا") : undefined}
+                              className={`inline-flex items-center gap-1 ${playbackUrl ? "cursor-pointer hover:text-[#C25E38] hover:underline underline-offset-2" : "cursor-default"}`}
+                            >
+                              {playbackUrl && <Play className="w-3 h-3" />}
+                              <span>{segment.timeStart} ← {segment.timeEnd}</span>
+                            </button>
                             <span className="text-stone-300 dark:text-neutral-700">•</span>
                             <span className="text-[11px] bg-white dark:bg-neutral-950 text-stone-700 dark:text-neutral-300 px-2 py-0.5 rounded border border-stone-200 dark:border-neutral-900 shadow-2xs">
                               {segment.duration} ثانية
@@ -4640,6 +4707,18 @@ export default function App() {
       </footer>
 
       </div>
+
+      {/* Evaluation criteria visibility modal (was imported and opened by a button but never rendered) */}
+      <CriteriaVisibilityModal
+        isOpen={isCriteriaModalOpen}
+        onClose={() => setIsCriteriaModalOpen(false)}
+        settings={measurementSettings}
+        onToggle={toggleSingleMeasurement}
+        onShowAll={handleShowAllMeasurements}
+        onHideAll={handleHideAllMeasurements}
+        onResetDefaults={handleResetMeasurementDefaults}
+        language={language}
+      />
 
       {/* Receipt OCR Audit Modal */}
       <ReceiptAuditModal

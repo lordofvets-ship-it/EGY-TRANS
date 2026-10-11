@@ -2,11 +2,14 @@ import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { speechProbabilities, probsToSegments, loadSilero, sileroLoadError, WINDOW, SAMPLE_RATE } from "./sileroNeural";
 
 export interface SpeechSegment {
   start: number; // seconds
   end: number;   // seconds
   confidence: number;
+  /** "speech" = human voice, "music" = sustained non-speech sound (hold music / tones). Absent in legacy records. */
+  kind?: "speech" | "music";
 }
 
 export interface SilenceSegment {
@@ -19,8 +22,20 @@ export interface SilenceSegment {
 }
 
 export interface SileroVadResult {
+  /** false when the audio could not be decoded; all numeric fields are then zero and MUST NOT be used as evidence. */
+  available: boolean;
+  unavailableReason?: string;
   engine: string;
+  /** true when the real Silero neural model produced the result */
+  neural?: boolean;
+  /**
+   * "Acoustic activity" segments (human speech ∪ sustained music). This keeps the legacy semantics that the
+   * hold/silence rules rely on; use `kind` (or humanSpeechSegments / musicSegments) to tell them apart.
+   */
   speechSegments: SpeechSegment[];
+  humanSpeechSegments?: SpeechSegment[];
+  musicSegments?: SpeechSegment[];
+  musicRatio?: number;
   silenceSegments: SilenceSegment[];
   speechRatio: number;
   totalAudioDuration: number;
@@ -78,28 +93,154 @@ async function extractPcmWithFfmpeg(buffer: Buffer): Promise<Int16Array | null> 
 }
 
 /**
- * Silero VAD (Voice Activity Detection) high-precision acoustic analysis.
- * Operates on 512-sample (32ms) windows at 16kHz.
- * Detects voiced speech, whispers, and strict silence intervals.
+ * Decides whether a segment is hold-music-like. Legacy records (no `kind`) keep the old duration+confidence rule;
+ * new records are classified by the neural model, so long continuous human speech is no longer mistaken for music.
  */
-export async function runSileroVad(buffer: Buffer): Promise<SileroVadResult> {
-  const sampleRate = 16000;
-  const frameSize = 512; // 32ms frames at 16kHz (Standard Silero window)
-  const pcm = await extractPcmWithFfmpeg(buffer);
+export function isMusicBlock(seg: any, minConfidence: number): boolean {
+  const dur = Number(seg?.end) - Number(seg?.start);
+  if (!(dur >= 12)) return false;
+  if (seg?.kind === "speech") return false;
+  return Number(seg?.confidence || 0) >= minConfidence;
+}
 
-  // Fallback if ffmpeg is unable to decode PCM:
-  if (!pcm || pcm.length === 0) {
-    return {
-      engine: "Silero-VAD (Acoustic Fallback)",
-      speechSegments: [{ start: 0, end: 60, confidence: 0.95 }],
-      silenceSegments: [],
-      speechRatio: 0.85,
-      totalAudioDuration: 60,
-      speechDuration: 51,
-      silenceDuration: 9,
-    };
+export function unavailableResult(reason: string): SileroVadResult {
+  return {
+    available: false,
+    unavailableReason: reason,
+    engine: "VAD (غير متاح)",
+    speechSegments: [],
+    silenceSegments: [],
+    speechRatio: 0,
+    totalAudioDuration: 0,
+    speechDuration: 0,
+    silenceDuration: 0,
+  };
+}
+
+const fmtTime = (secs: number) => `${Math.floor(secs / 60).toString().padStart(2, "0")}:${Math.floor(secs % 60).toString().padStart(2, "0")}`;
+
+/** Silence = gaps (>1 s) not covered by ANY acoustic activity (speech or music). */
+function gapsToSilence(activity: SpeechSegment[], totalDuration: number, label: string): SilenceSegment[] {
+  const out: SilenceSegment[] = [];
+  let lastEnd = 0;
+  const push = (from: number, to: number, tail: boolean) => {
+    const dur = Number((to - from).toFixed(1));
+    out.push({
+      timeStart: fmtTime(from), timeEnd: fmtTime(to), duration: dur,
+      fromSpeaker: "موظف خدمة العملاء", toSpeaker: "موظف خدمة العملاء",
+      description: `فترة صمت${tail ? " ختامية" : ""} تم رصدها بواسطة ${label} (${dur} ثانية)`,
+    });
+  };
+  for (const seg of activity) {
+    if (seg.start > lastEnd + 1.0) push(lastEnd, seg.start, false);
+    lastEnd = Math.max(lastEnd, seg.end);
   }
+  if (totalDuration > lastEnd + 1.0) push(lastEnd, totalDuration, true);
+  return out;
+}
 
+/** Frame RMS + adaptive noise floor (shared by both engines). */
+function frameEnergies(pcm: Int16Array) {
+  const numFrames = Math.floor(pcm.length / WINDOW);
+  const energies = new Float64Array(numFrames);
+  for (let i = 0; i < numFrames; i++) {
+    let sumSq = 0;
+    const off = i * WINDOW;
+    for (let j = 0; j < WINDOW; j++) { const v = pcm[off + j] / 32768.0; sumSq += v * v; }
+    energies[i] = Math.sqrt(sumSq / WINDOW);
+  }
+  const sorted = Array.from(energies).sort((a, b) => a - b);
+  const noiseFloor = sorted[Math.floor(numFrames * 0.15)] || 0.005;
+  return { energies, noiseFloor, numFrames };
+}
+
+/**
+ * Real Silero VAD v5. Speech comes from the neural model; sustained non-speech sound (hold music, tones) is found by
+ * energy in the frames the model rejected; what remains is true silence.
+ */
+async function analyzeNeural(pcm: Int16Array): Promise<SileroVadResult | null> {
+  const probs = await speechProbabilities(pcm);
+  if (!probs) return null;
+  const totalDuration = pcm.length / SAMPLE_RATE;
+  const human: SpeechSegment[] = probsToSegments(probs, pcm.length, { threshold: 0.5, minSpeechMs: 250, minSilenceMs: 300, speechPadMs: 100 })
+    .map((s) => ({ ...s, kind: "speech" as const }));
+
+  // frames covered by human speech
+  const { energies, noiseFloor, numFrames } = frameEnergies(pcm);
+  const frameSec = WINDOW / SAMPLE_RATE;
+  const isSpeechFrame = new Uint8Array(numFrames);
+  for (const s of human) {
+    for (let f = Math.floor(s.start / frameSec); f <= Math.min(numFrames - 1, Math.ceil(s.end / frameSec)); f++) isSpeechFrame[f] = 1;
+  }
+  const soundThreshold = Math.max(0.012, noiseFloor * 3.5);
+  const bridgeFrames = Math.round(0.5 / frameSec); // music has quiet passages
+  const music: SpeechSegment[] = [];
+  let start = -1, lastSound = -1;
+  const closeBlock = () => {
+    if (start >= 0) {
+      const dur = (lastSound - start + 1) * frameSec;
+      if (dur >= 3) {
+        music.push({
+          start: Number((start * frameSec).toFixed(2)), end: Number(((lastSound + 1) * frameSec).toFixed(2)),
+          confidence: Number(Math.min(0.95, 0.7 + 0.25 * Math.min(1, dur / 30)).toFixed(3)), kind: "music",
+        });
+      }
+    }
+    start = -1; lastSound = -1;
+  };
+  for (let f = 0; f < numFrames; f++) {
+    const sound = !isSpeechFrame[f] && energies[f] > soundThreshold;
+    if (sound) { if (start < 0) start = f; lastSound = f; }
+    else if (start >= 0 && f - lastSound > bridgeFrames) closeBlock();
+  }
+  closeBlock();
+
+  const activity = [...human, ...music].sort((a, b) => a.start - b.start);
+  const speechSec = human.reduce((a, s) => a + (s.end - s.start), 0);
+  const musicSec = music.reduce((a, s) => a + (s.end - s.start), 0);
+  const label = "Silero VAD v5";
+  return {
+    available: true,
+    neural: true,
+    engine: "Silero VAD v5 (ONNX)",
+    speechSegments: activity,
+    humanSpeechSegments: human,
+    musicSegments: music,
+    silenceSegments: gapsToSilence(activity, totalDuration, label),
+    speechRatio: totalDuration > 0 ? Number((speechSec / totalDuration).toFixed(3)) : 0,
+    musicRatio: totalDuration > 0 ? Number((musicSec / totalDuration).toFixed(3)) : 0,
+    totalAudioDuration: Number(totalDuration.toFixed(1)),
+    speechDuration: Number(speechSec.toFixed(1)),
+    silenceDuration: Number(Math.max(0, totalDuration - speechSec - musicSec).toFixed(1)),
+  };
+}
+
+/** Public entry point: neural Silero when available, otherwise the (honestly labelled) energy heuristic. */
+export async function runSileroVad(buffer: Buffer): Promise<SileroVadResult> {
+  const pcm = await extractPcmWithFfmpeg(buffer);
+  // Fail loudly: never fabricate speech/silence statistics when the audio cannot be decoded.
+  if (!pcm || pcm.length === 0) return unavailableResult("تعذّر فك ترميز الصوت عبر ffmpeg؛ لا توجد بيانات VAD موثوقة لهذه المكالمة.");
+  try {
+    const neural = await analyzeNeural(pcm);
+    if (neural) return neural;
+  } catch (e: any) {
+    console.warn("[VAD] neural analysis failed, falling back to the energy heuristic:", e?.message || e);
+  }
+  return analyzeEnergy(pcm);
+}
+
+export async function describeVadEngine(): Promise<{ engine: string; neural: boolean; reason?: string }> {
+  const rt = await loadSilero();
+  return rt ? { engine: "Silero VAD v5 (ONNX)", neural: true } : { engine: "Energy+ZCR VAD (تقريبي)", neural: false, reason: sileroLoadError() };
+}
+
+/**
+ * Energy + zero-crossing-rate voice activity detection (fallback; NOT the Silero neural model).
+ * It cannot tell speech from music — everything loud counts as "speech".
+ */
+async function analyzeEnergy(pcm: Int16Array): Promise<SileroVadResult> {
+  const sampleRate = 16000;
+  const frameSize = 512; // 32ms frames at 16kHz
   const numFrames = Math.floor(pcm.length / frameSize);
   const frameDuration = frameSize / sampleRate; // ~0.032 seconds
   const totalDuration = pcm.length / sampleRate;
@@ -220,7 +361,7 @@ export async function runSileroVad(buffer: Buffer): Promise<SileroVadResult> {
         duration: dur,
         fromSpeaker: "موظف خدمة العملاء",
         toSpeaker: "موظف خدمة العملاء",
-        description: `فترة صمت وسكوت تم رصدها بدقة عبر Silero VAD (${dur} ثانية)`,
+        description: `فترة صمت تم رصدها بكاشف النشاط الصوتي التقريبي (${dur} ثانية)`,
       });
     }
     lastEnd = Math.max(lastEnd, seg.end);
@@ -234,7 +375,7 @@ export async function runSileroVad(buffer: Buffer): Promise<SileroVadResult> {
       duration: dur,
       fromSpeaker: "موظف خدمة العملاء",
       toSpeaker: "موظف خدمة العملاء",
-      description: `فترة صمت وسكوت ختامية تم رصدها بدقة عبر Silero VAD (${dur} ثانية)`,
+      description: `فترة صمت ختامية تم رصدها بكاشف النشاط الصوتي التقريبي (${dur} ثانية)`,
     });
   }
 
@@ -242,7 +383,9 @@ export async function runSileroVad(buffer: Buffer): Promise<SileroVadResult> {
   const speechRatio = totalDuration > 0 ? Number((totalSpeechSec / totalDuration).toFixed(3)) : 1.0;
 
   return {
-    engine: "Silero-VAD v4 (Active Speech Detection)",
+    available: true,
+    engine: "Energy+ZCR VAD (تقريبي — ليس نموذج Silero)",
+    neural: false,
     speechSegments,
     silenceSegments,
     speechRatio,
